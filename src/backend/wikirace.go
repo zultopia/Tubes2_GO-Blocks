@@ -55,9 +55,11 @@ func BFS(start, end WikiPage) ([]WikiPage, int) {
 	visited[start.Title] = true
 
 	for len(queue) > 0 {
+		// Dequeue
 		path := queue[0]
 		queue = queue[1:]
 
+		// Ambil page yang terakhir dicek
 		lastPage := path[len(path)-1]
 		if lastPage.Title == end.Title {
 			return path, len(visited)
@@ -79,13 +81,14 @@ func BFS(start, end WikiPage) ([]WikiPage, int) {
 
 // IDS Algorithm
 func IDS(start, end WikiPage, maxDepth int) ([]WikiPage, int) {
+	nodesChecked := 0
 	for depth := 1; depth <= maxDepth; depth++ {
 		path, nodesChecked := DLS(start, end, depth)
 		if path != nil {
 			return path, nodesChecked
 		}
 	}
-	return nil, -1
+	return nil, nodesChecked
 }
 
 // DLS up to a given depth
@@ -96,15 +99,16 @@ func DLS(start, end WikiPage, depth int) ([]WikiPage, int) {
 	if start.Title == end.Title {
 		return []WikiPage{start}, 1
 	}
-
+	currentChecked := 1
 	links := getWikiLinks(start)
 	for _, link := range links {
 		path, nodesChecked := DLS(link, end, depth-1)
+		currentChecked += nodesChecked
 		if path != nil {
-			return append([]WikiPage{start}, path...), nodesChecked
+			return append([]WikiPage{start}, path...), currentChecked
 		}
 	}
-	return nil, len(links)
+	return nil, currentChecked
 }
 
 func main() {
