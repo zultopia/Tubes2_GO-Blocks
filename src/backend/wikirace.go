@@ -5,6 +5,7 @@ import (
 	"net/http"
 	"os"
 	"strings"
+	"sync"
 	"time"
 
 	"golang.org/x/net/html"
@@ -78,6 +79,54 @@ func BFS(start, end WikiPage) ([]WikiPage, int) {
 
 	return nil, len(visited)
 }
+var m = sync.RWMutex{}
+// var m2 = sync.RWMutex{}
+var wg = sync.WaitGroup{}
+func BFSGo(start, end WikiPage) ([]WikiPage, int) {
+	queue := make([][]WikiPage, 0)
+	queue = append(queue, []WikiPage{start})
+	newPath := make(chan []WikiPage)
+	visited := make(map[string]bool)
+	visited[start.Title] = true
+	go func(){
+		defer close(newPath)
+		for len(queue) > 0{
+			curpath := queue[0]
+			queue = queue[1:]
+			wg.Add(1)
+			go BFSHelper(curpath, newPath, visited)
+			m.Lock()
+			queue = append(queue, <-newPath)
+			m.Unlock()
+		}
+		wg.Wait()
+	}()
+	for n := range newPath {
+		path := n
+		if path[len(path) - 1].Title == end.Title {
+			return path, len(visited)
+		}
+		
+	}
+	return nil, len(visited)
+}
+func BFSHelper(path []WikiPage, newPath chan <-[]WikiPage, visited map[string]bool){
+	defer wg.Done()
+	lastPage := path[len(path)-1]
+	links := getWikiLinks(lastPage)
+	fmt.Println(1)
+	for _, link := range links {
+		if !visited[link.Title] {
+			visited[link.Title] = true
+			newPathtmp := append([]WikiPage{}, path...)
+			newPathtmp = append(newPathtmp, link)
+			newPath <- newPathtmp
+			
+		}
+	}
+
+}
+
 
 // IDS Algorithm
 func IDS(start, end WikiPage, maxDepth int) ([]WikiPage, int) {
@@ -127,7 +176,7 @@ func main() {
 
 	switch algorithm {
 	case "BFS":
-		path, nodesChecked = BFS(start, end)
+		path, nodesChecked = BFSGo(start, end)
 	case "IDS":
 		path, nodesChecked = IDS(start, end, 20) // Maximum depth for IDS
 	default:
