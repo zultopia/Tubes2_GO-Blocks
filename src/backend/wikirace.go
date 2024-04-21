@@ -86,15 +86,16 @@ func BFSGo(start, end WikiPage) ([]WikiPage, int) {
 	queue := make([][]WikiPage, 0)
 	queue = append(queue, []WikiPage{start})
 	newPath := make(chan []WikiPage)
-	visited := make(map[string]bool)
-	visited[start.Title] = true
+	var visited sync.Map
+	// visited := make(map[string]bool)
+	visited.Store(start.Title, true)
 	go func(){
 		defer close(newPath)
 		for len(queue) > 0{
 			curpath := queue[0]
 			queue = queue[1:]
 			wg.Add(1)
-			go BFSHelper(curpath, newPath, visited)
+			go BFSHelper(curpath, newPath, &visited)
 			m.Lock()
 			queue = append(queue, <-newPath)
 			m.Unlock()
@@ -104,20 +105,21 @@ func BFSGo(start, end WikiPage) ([]WikiPage, int) {
 	for n := range newPath {
 		path := n
 		if path[len(path) - 1].Title == end.Title {
-			return path, len(visited)
+			return path, syncMapLen(&visited)
 		}
 		
 	}
-	return nil, len(visited)
+	return nil, syncMapLen(&visited)
 }
-func BFSHelper(path []WikiPage, newPath chan <-[]WikiPage, visited map[string]bool){
+func BFSHelper(path []WikiPage, newPath chan <-[]WikiPage, visited *sync.Map){
 	defer wg.Done()
 	lastPage := path[len(path)-1]
 	links := getWikiLinks(lastPage)
 	fmt.Println(1)
 	for _, link := range links {
-		if !visited[link.Title] {
-			visited[link.Title] = true
+		_, ok := visited.Load(link.Title)
+		if !ok {
+			visited.Store(link.Title, true)
 			newPathtmp := append([]WikiPage{}, path...)
 			newPathtmp = append(newPathtmp, link)
 			newPath <- newPathtmp
@@ -125,6 +127,14 @@ func BFSHelper(path []WikiPage, newPath chan <-[]WikiPage, visited map[string]bo
 		}
 	}
 
+}
+func syncMapLen(sm *sync.Map) int {
+	var i int
+	sm.Range(func(k, v interface{}) bool {
+        i++
+        return true
+    })
+    return i
 }
 
 
