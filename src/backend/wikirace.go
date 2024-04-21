@@ -5,6 +5,7 @@ import (
 	"net/http"
 	"os"
 	"strings"
+	"sync"
 	"time"
 
 	"golang.org/x/net/html"
@@ -55,9 +56,11 @@ func BFS(start, end WikiPage) ([]WikiPage, int) {
 	visited[start.Title] = true
 
 	for len(queue) > 0 {
+		// Dequeue
 		path := queue[0]
 		queue = queue[1:]
 
+		// Ambil page yang terakhir dicek
 		lastPage := path[len(path)-1]
 		if lastPage.Title == end.Title {
 			return path, len(visited)
@@ -76,16 +79,75 @@ func BFS(start, end WikiPage) ([]WikiPage, int) {
 
 	return nil, len(visited)
 }
+var m = sync.RWMutex{}
+// var m2 = sync.RWMutex{}
+var wg = sync.WaitGroup{}
+func BFSGo(start, end WikiPage) ([]WikiPage, int) {
+	queue := make([][]WikiPage, 0)
+	queue = append(queue, []WikiPage{start})
+	newPath := make(chan []WikiPage)
+	var visited sync.Map
+	// visited := make(map[string]bool)
+	visited.Store(start.Title, true)
+	go func(){
+		defer close(newPath)
+		for len(queue) > 0{
+			curpath := queue[0]
+			queue = queue[1:]
+			wg.Add(1)
+			go BFSHelper(curpath, newPath, &visited)
+			m.Lock()
+			queue = append(queue, <-newPath)
+			m.Unlock()
+		}
+		wg.Wait()
+	}()
+	for n := range newPath {
+		path := n
+		if path[len(path) - 1].Title == end.Title {
+			return path, syncMapLen(&visited)
+		}
+		
+	}
+	return nil, syncMapLen(&visited)
+}
+func BFSHelper(path []WikiPage, newPath chan <-[]WikiPage, visited *sync.Map){
+	defer wg.Done()
+	lastPage := path[len(path)-1]
+	links := getWikiLinks(lastPage)
+	fmt.Println(1)
+	for _, link := range links {
+		_, ok := visited.Load(link.Title)
+		if !ok {
+			visited.Store(link.Title, true)
+			newPathtmp := append([]WikiPage{}, path...)
+			newPathtmp = append(newPathtmp, link)
+			newPath <- newPathtmp
+			
+		}
+	}
+
+}
+func syncMapLen(sm *sync.Map) int {
+	var i int
+	sm.Range(func(k, v interface{}) bool {
+        i++
+        return true
+    })
+    return i
+}
+
 
 // IDS Algorithm
 func IDS(start, end WikiPage, maxDepth int) ([]WikiPage, int) {
+	nodesChecked := 0
 	for depth := 1; depth <= maxDepth; depth++ {
 		path, nodesChecked := DLS(start, end, depth)
 		if path != nil {
 			return path, nodesChecked
 		}
 	}
-	return nil, -1
+	return nil, nodesChecked
 }
 
 // DLS up to a given depth
@@ -96,15 +158,16 @@ func DLS(start, end WikiPage, depth int) ([]WikiPage, int) {
 	if start.Title == end.Title {
 		return []WikiPage{start}, 1
 	}
-
+	currentChecked := 1
 	links := getWikiLinks(start)
 	for _, link := range links {
 		path, nodesChecked := DLS(link, end, depth-1)
+		currentChecked += nodesChecked
 		if path != nil {
-			return append([]WikiPage{start}, path...), nodesChecked
+			return append([]WikiPage{start}, path...), currentChecked
 		}
 	}
-	return nil, len(links)
+	return nil, currentChecked
 }
 
 func main() {
@@ -123,7 +186,7 @@ func main() {
 
 	switch algorithm {
 	case "BFS":
-		path, nodesChecked = BFS(start, end)
+		path, nodesChecked = BFSGo(start, end)
 	case "IDS":
 		path, nodesChecked = IDS(start, end, 20) // Maximum depth for IDS
 	default:
