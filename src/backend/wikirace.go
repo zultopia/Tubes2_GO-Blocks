@@ -2,13 +2,13 @@ package main
 
 import (
 	"fmt"
-	"net/http"
+	// "net/http"
 	"os"
 	"strings"
 	"sync"
 	"time"
-
-	"golang.org/x/net/html"
+	"github.com/gocolly/colly/v2"
+	// "golang.org/x/net/html"
 )
 
 // WikiPage represents a Wikipedia page with its title and URL
@@ -18,35 +18,62 @@ type WikiPage struct {
 }
 
 // getWikiLinks without cache
-func getWikiLinks(page WikiPage) []WikiPage {
-	links := make([]WikiPage, 0)
-	resp, err := http.Get(page.URL)
-	if err != nil {
-		fmt.Println("Error fetching page:", err)
-		return links
-	}
-	defer resp.Body.Close()
+// func getWikiLinks(page WikiPage) []WikiPage {
+// 	links := make([]WikiPage, 0)
+// 	resp, err := http.Get(page.URL)
+// 	if err != nil {
+// 		fmt.Println("Error fetching page:", err)
+// 		return links
+// 	}
+// 	defer resp.Body.Close()
 
-	z := html.NewTokenizer(resp.Body)
-	for {
-		tt := z.Next()
-		switch tt {
-		case html.ErrorToken:
-			return links
-		case html.StartTagToken, html.SelfClosingTagToken:
-			t := z.Token()
-			if t.Data == "a" {
-				for _, attr := range t.Attr {
-					if attr.Key == "href" && strings.HasPrefix(attr.Val, "/wiki/") {
-						title := strings.TrimPrefix(attr.Val, "/wiki/")
-						link := WikiPage{Title: title, URL: "https://en.wikipedia.org" + attr.Val}
-						links = append(links, link)
-					}
-				}
-			}
+// 	z := html.NewTokenizer(resp.Body)
+// 	for {
+// 		tt := z.Next()
+// 		switch tt {
+// 		case html.ErrorToken:
+// 			return links
+// 		case html.StartTagToken, html.SelfClosingTagToken:
+// 			t := z.Token()
+// 			if t.Data == "a" {
+// 				for _, attr := range t.Attr {
+// 					if attr.Key == "href" && strings.HasPrefix(attr.Val, "/wiki/") {
+// 						title := strings.TrimPrefix(attr.Val, "/wiki/")
+// 						link := WikiPage{Title: title, URL: "https://en.wikipedia.org" + attr.Val}
+// 						links = append(links, link)
+// 					}
+// 				}
+// 			}
+// 		}
+// 	}
+// }
+
+func getWikiLinks(page WikiPage) ([]WikiPage, error){
+	c := colly.NewCollector(
+		colly.AllowedDomains("en.wikipedia.org"),
+	)
+	var wikipages []WikiPage
+	var wikipage WikiPage
+	c.OnHTML("a[href]", func(e *colly.HTMLElement){
+		tmp := e.Attr("href")
+		// fmt.Println(tmp)
+		if strings.HasPrefix(tmp, "/wiki") && !strings.HasPrefix(tmp, "/wiki/File:"){
+			wikipage.URL = "https://en.wikipedia.org" + tmp
+			// fmt.Println(wikipage.URL)
+			wikipage.Title = strings.TrimPrefix(wikipage.URL, "https://en.wikipedia.org/wiki/")
+			// fmt.Println(wikipage.Title)
+			wikipages = append(wikipages, wikipage)
+			// time.Sleep(5 * time.Millisecond)
 		}
+		
+	})
+	err := c.Visit(page.URL)
+	if err != nil{
+		return nil, err
 	}
+	return wikipages, err
 }
+
 
 // BFS Algorithm
 func BFS(start, end WikiPage) ([]WikiPage, int) {
@@ -66,7 +93,7 @@ func BFS(start, end WikiPage) ([]WikiPage, int) {
 			return path, len(visited)
 		}
 
-		links := getWikiLinks(lastPage)
+		links, _ := getWikiLinks(lastPage)
 		for _, link := range links {
 			if !visited[link.Title] {
 				visited[link.Title] = true
@@ -104,18 +131,32 @@ func BFSGo(start, end WikiPage) ([]WikiPage, int) {
 	}()
 	for n := range newPath {
 		path := n
+		if len(path) == 0{
+			return nil, syncMapLen(&visited)
+		}
+ 		// fmt.Println(path)
 		if path[len(path) - 1].Title == end.Title {
 			return path, syncMapLen(&visited)
 		}
+		
 		
 	}
 	return nil, syncMapLen(&visited)
 }
 func BFSHelper(path []WikiPage, newPath chan <-[]WikiPage, visited *sync.Map){
 	defer wg.Done()
+	if len(path) == 0{
+		newPath <- []WikiPage{}
+		return
+	}
 	lastPage := path[len(path)-1]
-	links := getWikiLinks(lastPage)
-	fmt.Println(1)
+	links, err := getWikiLinks(lastPage)
+	fmt.Println(len(links))
+	if err != nil{
+		newPath <- []WikiPage{}
+		return
+	}
+	// fmt.Println(1)
 	for _, link := range links {
 		_, ok := visited.Load(link.Title)
 		if !ok {
@@ -159,7 +200,7 @@ func DLS(start, end WikiPage, depth int) ([]WikiPage, int) {
 		return []WikiPage{start}, 1
 	}
 	currentChecked := 1
-	links := getWikiLinks(start)
+	links, _ := getWikiLinks(start)
 	for _, link := range links {
 		path, nodesChecked := DLS(link, end, depth-1)
 		currentChecked += nodesChecked
