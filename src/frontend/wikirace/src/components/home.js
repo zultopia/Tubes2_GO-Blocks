@@ -44,6 +44,16 @@ function Home() {
     setTargetArticle(temp);
   };
 
+  const handleStartSelect = (suggestion) => {
+    setStartArticle(suggestion);
+    setIsStartAutocompleteOpen(false); 
+  };
+
+  const handleEndSelect = (suggestion) => {
+    setTargetArticle(suggestion);
+    setIsEndAutocompleteOpen(false); 
+  };
+
   const handleStartContainerClick = () => {
     if (startArticle.length > 0) {
       setIsStartAutocompleteOpen(true); 
@@ -118,7 +128,7 @@ function Home() {
 
       {/* Kontainer Logika */}
       <div className="logic-container">
-        <div className="start-container" onClick={handleStartContainerClick}>
+        <div className="start-container">
           <input
             type="text"
             value={startArticle}
@@ -129,16 +139,13 @@ function Home() {
           {isStartAutocompleteOpen && (
             <WikipediaAutosuggest
               value={startArticle}
-              onSelect={(suggestion) => {
-                setStartArticle(suggestion);
-                setIsStartAutocompleteOpen(false);
-              }}
+              onSelect={handleStartSelect}
               close={() => setIsStartAutocompleteOpen(false)}
           />
         )}
         </div>
 
-        <div className="end-container" onClick={handleEndContainerClick}>
+        <div className="end-container">
           <input
             type="text"
             value={targetArticle}
@@ -149,10 +156,7 @@ function Home() {
           {isEndAutocompleteOpen && (
             <WikipediaAutosuggest2
               value={targetArticle}
-              onSelect={(suggestion) => {
-                setTargetArticle(suggestion);
-                setIsEndAutocompleteOpen(false);
-              }}
+              onSelect={handleEndSelect}
               close={() => setIsEndAutocompleteOpen(false)}
             />
           )}
