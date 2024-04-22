@@ -122,6 +122,7 @@ var guard = make(chan struct{}, 200)
 
 func BFSGo(start, end WikiPage) ([]WikiPage, int) {
 	queue := make([][]WikiPage, 0)
+
 	var visited sync.Map
 	queue = append(queue, []WikiPage{start})
 	newPath := make(chan []WikiPage)
@@ -153,6 +154,7 @@ func BFSGo(start, end WikiPage) ([]WikiPage, int) {
 			fmt.Println("Masuk Sini!")
 			tmpqueue = nil
 			time.Sleep(time.Millisecond * 500)
+			// if solution tidak kosong, break
 		}
 		fmt.Println("TESTES")
 	}()
@@ -168,6 +170,8 @@ func BFSGo(start, end WikiPage) ([]WikiPage, int) {
 		}
 
 	}
+	// if solution tidak kosng, ....
+	// if solution kosong:
 	return nil, syncMapLen(&visited)
 }
 func BFSHelper(path []WikiPage, end WikiPage, newPath chan<- []WikiPage, visited *sync.Map, tmpqueue *[][]WikiPage) {
