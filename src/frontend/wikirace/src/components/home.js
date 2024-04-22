@@ -15,6 +15,8 @@ import end from './assets/end.png';
 import search from './assets/search.png';
 import piston from './assets/piston.png';
 import switchs from './assets/switch.png';
+import WikipediaAutosuggest from './wikipediaautosuggest';
+import WikipediaAutosuggest2 from './wikipediaautosuggest2';
 
 function Home() {
   const [startArticle, setStartArticle] = useState('');
@@ -23,6 +25,8 @@ function Home() {
   const [isLoading, setIsLoading] = useState(false); 
   const [bfsSrc, setBfsSrc] = useState(bfs_text); 
   const [idsSrc, setIdsSrc] = useState(ids_text); 
+  const [isStartAutocompleteOpen, setIsStartAutocompleteOpen] = useState(false);
+  const [isEndAutocompleteOpen, setIsEndAutocompleteOpen] = useState(false);
 
   const handleMcQueenClick = () => {
     setBfsSrc((prevSrc) => (prevSrc === bfs_text ? bfs_text2 : bfs_text)); 
@@ -38,6 +42,32 @@ function Home() {
     const temp = startArticle;
     setStartArticle(targetArticle);
     setTargetArticle(temp);
+  };
+
+  const handleStartContainerClick = () => {
+    if (startArticle.length > 0) {
+      setIsStartAutocompleteOpen(true); 
+    } else {
+      setIsStartAutocompleteOpen(false); 
+    }
+  };
+
+  const handleStartInputChange = (e) => {
+    setStartArticle(e.target.value);
+    setIsStartAutocompleteOpen(true); 
+  };
+
+  const handleEndContainerClick = () => {
+    if (targetArticle.length > 0) {
+      setIsEndAutocompleteOpen(true); 
+    } else {
+      setIsEndAutocompleteOpen(false); 
+    }
+  };
+
+  const handleEndInputChange = (e) => {
+    setTargetArticle(e.target.value);
+    setIsEndAutocompleteOpen(true); 
   };
 
   const handleSubmit = async (e) => {
@@ -88,24 +118,44 @@ function Home() {
 
       {/* Kontainer Logika */}
       <div className="logic-container">
-        <div className="start-container">
+        <div className="start-container" onClick={handleStartContainerClick}>
           <input
             type="text"
             value={startArticle}
-            onChange={(e) => setStartArticle(e.target.value)}
+            onChange={handleStartInputChange}
             className="start-container"
             placeholder="Start Article"
           />
+          {isStartAutocompleteOpen && (
+            <WikipediaAutosuggest
+              value={startArticle}
+              onSelect={(suggestion) => {
+                setStartArticle(suggestion);
+                setIsStartAutocompleteOpen(false);
+              }}
+              close={() => setIsStartAutocompleteOpen(false)}
+          />
+        )}
         </div>
 
-        <div className="end-container">
+        <div className="end-container" onClick={handleEndContainerClick}>
           <input
             type="text"
             value={targetArticle}
-            onChange={(e) => setTargetArticle(e.target.value)}
+            onChange={handleEndInputChange}
             className="end-container"
             placeholder="End Article"
           />
+          {isEndAutocompleteOpen && (
+            <WikipediaAutosuggest2
+              value={targetArticle}
+              onSelect={(suggestion) => {
+                setTargetArticle(suggestion);
+                setIsEndAutocompleteOpen(false);
+              }}
+              close={() => setIsEndAutocompleteOpen(false)}
+            />
+          )}
         </div>
 
         {/* Hasil Pencarian */}
@@ -124,8 +174,8 @@ function Home() {
                   </li>
                 ))}
               </ul>
-              <p>Articles Visited: {result.articlesVisited}</p>
-              <p>Articles Checked: {result.articlesChecked}</p>
+              <p>Number of Articles Visited: {result.articlesVisited}</p>
+              <p>Number of Articles Checked: {result.articlesChecked}</p>
               <p>Execution Time: {result.executionTime} ms</p>
             </div>
           ) : null}
