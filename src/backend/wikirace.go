@@ -117,10 +117,10 @@ var m = sync.RWMutex{}
 
 // var m2 = sync.RWMutex{}
 var wg = sync.WaitGroup{}
-var max_go int = 150
-var guard = make(chan struct{}, 200)
-
-func BFSGo(start, end WikiPage) ([]WikiPage, int) {
+var max_go int = 50
+var guard = make(chan struct{}, max_go)
+var solution = make([][] WikiPage,0)
+func BFSGo(start, end WikiPage) ([][]WikiPage, int) {
 	queue := make([][]WikiPage, 0)
 
 	var visited sync.Map
@@ -154,7 +154,9 @@ func BFSGo(start, end WikiPage) ([]WikiPage, int) {
 			fmt.Println("Masuk Sini!")
 			tmpqueue = nil
 			time.Sleep(time.Millisecond * 500)
-			// if solution tidak kosong, break
+			if len(solution) > 0{
+				break
+			}
 		}
 		fmt.Println("TESTES")
 	}()
@@ -166,12 +168,15 @@ func BFSGo(start, end WikiPage) ([]WikiPage, int) {
 		}
 		// fmt.Println(path)
 		if path[len(path)-1].Title == end.Title {
-			return path, syncMapLen(&visited)
+			// return path, syncMapLen(&visited)
+			solution = append(solution, path)
 		}
 
 	}
 	// if solution tidak kosng, ....
-	// if solution kosong:
+	if len(solution) > 0{
+		return solution, syncMapLen(&visited)
+	}
 	return nil, syncMapLen(&visited)
 }
 func BFSHelper(path []WikiPage, end WikiPage, newPath chan<- []WikiPage, visited *sync.Map, tmpqueue *[][]WikiPage) {
@@ -258,12 +263,13 @@ func main() {
 	end := WikiPage{Title: os.Args[3], URL: "https://en.wikipedia.org/wiki/" + os.Args[3]}
 
 	var path []WikiPage
+	var multipath [][]WikiPage
 	var nodesChecked int
 	startTime := time.Now()
 
 	switch algorithm {
 	case "BFS":
-		path, nodesChecked = BFSGo(start, end)
+		multipath, nodesChecked = BFSGo(start, end)
 	case "IDS":
 		path, nodesChecked = IDS(start, end, 20) // Maximum depth for IDS
 	default:
@@ -274,6 +280,7 @@ func main() {
 	endTime := time.Now()
 	elapsedTime := endTime.Sub(startTime)
 	fmt.Printf("Number of articles checked: %d\n", nodesChecked)
+	fmt.Println(multipath)
 	if path != nil {
 		fmt.Printf("Number of articles checked: %d\n", nodesChecked)
 		fmt.Printf("Number of articles traversed: %d\n", len(path))
