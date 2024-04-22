@@ -136,6 +136,8 @@ func BFSGo(start, end WikiPage) ([]WikiPage, int) {
 				// time.Sleep(5*time.Millisecond)
 			}
 			wg.Wait()
+			fmt.Println("Wait 5 sec")
+			time.Sleep(5*time.Second)
 		}
 	}()
 	for n := range newPath {
