@@ -6,7 +6,8 @@ import team from './assets/team.png';
 
 function AboutUs() {
     return (
-        <div className='about-us-background'>
+        <div>
+            <img src={mater} alt="Mater" className="mater-image"/>
             <img src={title} alt="Title" className="about-us-title"/>
             <img src={team} alt="Our Team" className="team-image"/>
             <div className="intro">
@@ -19,9 +20,6 @@ function AboutUs() {
                 Dalam memenuhi Tugas Besar IF2211 Strategi Algoritma, kelompok kami membuat Program berbasis Website dengan menggunakan Bahasa Go untuk Algoritma BFS dan IDS yang diterapkan
                 pada permainan Wikirace ini. Jadi, tunggu apa lagi, segera mainkan gamenya! </p>
                 </div>
-            </div>
-            <div>
-                <img src={mater} alt="Mater" className="mater-image"/>
             </div>
         </div>
     );

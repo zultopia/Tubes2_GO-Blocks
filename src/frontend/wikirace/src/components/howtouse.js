@@ -6,11 +6,11 @@ import sally from './assets/sally.png';
 
 function HowToUse() {
     return (
-        <div className='about-us-background'>
-            <img src={title} alt="Title" className="about-us-title"/>
+        <div>
             <div className="step-container">
                 <img src={step} alt="Step" className="step" />
             </div>
+            <img src={title} alt="Title" className="how-to-use-title"/>
             <img src={sally} alt="Sally" className="sally-image"/>
         </div>
     );
