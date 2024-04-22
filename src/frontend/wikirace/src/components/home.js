@@ -5,18 +5,40 @@ import stima from './assets/stima.png'
 import goblocks from './assets/goblocks.png'
 import bfs_text from './assets/bfs.png'
 import ids_text from './assets/ids.png'
+import bfs_text2 from './assets/bfs2.png'
+import ids_text2 from './assets/ids2.png'
 import './styles.css';
 import mcqueen from './assets/mcqueen.png';
 import cruz from './assets/cruz.png';
 import start from './assets/start.png';
 import end from './assets/end.png';
 import search from './assets/search.png';
+import piston from './assets/piston.png';
+import switchs from './assets/switch.png';
 
 function Home() {
   const [startArticle, setStartArticle] = useState('');
   const [targetArticle, setTargetArticle] = useState('');
   const [result, setResult] = useState(null);
-  const [isLoading, setIsLoading] = useState(false); // Add loading state
+  const [isLoading, setIsLoading] = useState(false); 
+  const [bfsSrc, setBfsSrc] = useState(bfs_text); 
+  const [idsSrc, setIdsSrc] = useState(ids_text); 
+
+  const handleMcQueenClick = () => {
+    setBfsSrc((prevSrc) => (prevSrc === bfs_text ? bfs_text2 : bfs_text)); 
+    setIdsSrc(ids_text); 
+  };
+
+  const handleCruzClick = () => {
+    setIdsSrc((prevSrc) => (prevSrc === ids_text ? ids_text2 : ids_text)); 
+    setBfsSrc(bfs_text); 
+  };
+
+  const handleSwitch = () => {
+    const temp = startArticle;
+    setStartArticle(targetArticle);
+    setTargetArticle(temp);
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -45,17 +67,23 @@ function Home() {
         <img src={wikirace} alt="Wiki Race" className="wiki-race-image" />
         <img src={stima} alt="STIMA" className="stima-image" />
         <img src={goblocks} alt="GO Blocks" className="goblocks-image" />
-        <img src={bfs_text} alt="BFS Title" className="bfs-text" />
-        <img src={ids_text} alt="IDS Title" className="ids-text" />
+        <img src={bfsSrc} alt="BFS Title" className="bfs-text" /> 
+        <img src={idsSrc} alt="IDS Title" className="ids-text" /> 
         <img src={start} alt="START" className="start-image" />
         <img src={end} alt="END" className="end-image" />
         <img src={search} alt="SEARCH" className="search-image" />
-        <button className="mcqueen-button">
+        <button className="switch-button">
+          <img src={switchs} alt="Switch" onClick={handleSwitch} />
+        </button>
+        <button className="mcqueen-button" onClick={handleMcQueenClick}>
           <img src={mcqueen} alt="Button 1" />
         </button>
-        <button className="cruz-button">
+        <button className="cruz-button" onClick={handleCruzClick}>
           <img src={cruz} alt="Button 2" />
         </button>
+        <button className="piston-button" onClick={handleSubmit}>
+            <img src={piston} alt="Piston" />
+          </button>
       </div>
 
       {/* Kontainer Logika */}
@@ -65,21 +93,19 @@ function Home() {
             type="text"
             value={startArticle}
             onChange={(e) => setStartArticle(e.target.value)}
+            className="start-container"
             placeholder="Start Article"
           />
         </div>
 
-        <div class="end-container">
+        <div className="end-container">
           <input
             type="text"
             value={targetArticle}
             onChange={(e) => setTargetArticle(e.target.value)}
+            className="end-container"
             placeholder="End Article"
           />
-        </div>
-
-        <div className="search-container">
-          <button onClick={handleSubmit}>Search</button>
         </div>
 
         {/* Hasil Pencarian */}

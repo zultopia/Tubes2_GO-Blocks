@@ -39,22 +39,67 @@
     width: 150px; 
     position: absolute;
     top: 240px; 
-    left: 460px; 
+    left: 500px; 
 } 
 
 .end-image {
     width: 100px; 
     position: absolute;
     top: 240px; 
-    right: 850px;
+    right: 780px;
 } 
 
 .search-image {
     width: 190px; 
     position: absolute;
-    top: 240px; 
+    top: 235px; 
     right: 450px; 
 } 
+
+.switch-button {
+    background: none;
+    border: none;
+    cursor: pointer;
+    width: 80px;
+    height: 80px;
+    position: absolute;
+    top: 280px;
+    left: 740px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    color: white;
+    font-size: 18px;
+    font-family: "Comic Sans MS", cursive;
+}
+
+.switch-button img {
+    width: 100%;
+    height: 80%;
+}
+
+.piston-button {
+    background: none;
+    cursor: pointer;
+    width: 80px;
+    height: 80px;
+    position: absolute;
+    top: 280px;
+    right: 500px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    color: rgb(169, 0, 0);
+    font-size: 18px;
+    transition: box-shadow 0.3s ease;
+}
+
+.piston-button img {
+    width: 180%;
+    height: 80%;
+}
 
 .bfs-text {
     width: 120px; 
@@ -248,15 +293,28 @@ html, body {
 .start-container {
     position: absolute;
     top: 33%;
-    left: 30%;
+    left: 365px;
     transform: translate(-50%, -50%);
+    width: 300px;
+    height: 40px;
+    border-radius: 15px; 
+    font-family: 'Comic Sans MS', cursive, sans-serif;
+    font-size: 1rem;
+    text-align: center; 
+    z-index: 1; 
 }
 
 .end-container {
     position: absolute;
     top: 33%;
-    left: 50%;
+    left: 565px;
     transform: translate(-50%, -50%);
+    width: 300px;
+    height: 40px;
+    border-radius: 15px; 
+    font-family: 'Comic Sans MS', cursive, sans-serif;
+    font-size: 1rem;
+    text-align: center; 
 }
 
 .search-container {
@@ -362,7 +420,7 @@ html, body {
 .team-image {
     width: 1000px; 
     position: relative;
-    top: 460px; 
+    top: 470px; 
     left: 290px; 
     transform: translateX(-50%); 
 }  
