@@ -7,6 +7,7 @@ import (
 	"strings"
 	"sync"
 	"time"
+
 	"github.com/gocolly/colly/v2"
 	// "golang.org/x/net/html"
 )
@@ -48,19 +49,19 @@ type WikiPage struct {
 // 	}
 // }
 
-func getWikiLinks(page, end WikiPage) ([]WikiPage, error){
+func getWikiLinks(page, end WikiPage) ([]WikiPage, error) {
 	c := colly.NewCollector(
 		colly.AllowedDomains("en.wikipedia.org"),
 	)
 	var wikipages []WikiPage
 	var wikipage WikiPage
-	c.OnError(func(_ *colly.Response, err error) { 
-		fmt.Println("Something went wrong: ", err) 
+	c.OnError(func(_ *colly.Response, err error) {
+		fmt.Println("Something went wrong: ", err)
 	})
-	c.OnHTML("a[href]", func(e *colly.HTMLElement){
+	c.OnHTML("a[href]", func(e *colly.HTMLElement) {
 		tmp := e.Attr("href")
 		// fmt.Println(tmp)
-		if strings.HasPrefix(tmp, "/wiki") && !strings.HasPrefix(tmp, "/wiki/File:") && !strings.HasPrefix(tmp, "#") && !strings.HasPrefix(tmp, "https://"){
+		if strings.HasPrefix(tmp, "/wiki") && !strings.HasPrefix(tmp, "/wiki/File:") && !strings.HasPrefix(tmp, "#") && !strings.HasPrefix(tmp, "https://") {
 			wikipage.URL = "https://en.wikipedia.org" + tmp
 			// fmt.Println(wikipage.URL)
 			wikipage.Title = strings.TrimPrefix(wikipage.URL, "https://en.wikipedia.org/wiki/")
@@ -68,18 +69,17 @@ func getWikiLinks(page, end WikiPage) ([]WikiPage, error){
 			wikipages = append(wikipages, wikipage)
 		}
 		// time.Sleep(5 * time.Millisecond)
-		if wikipage.Title == end.Title{
+		if wikipage.Title == end.Title {
 			return
 		}
-		
+
 	})
 	err := c.Visit(page.URL)
-	if err != nil{
+	if err != nil {
 		return nil, err
 	}
 	return wikipages, err
 }
-
 
 // BFS Algorithm
 func BFS(start, end WikiPage) ([]WikiPage, int) {
@@ -112,9 +112,14 @@ func BFS(start, end WikiPage) ([]WikiPage, int) {
 
 	return nil, len(visited)
 }
+
 var m = sync.RWMutex{}
+
 // var m2 = sync.RWMutex{}
 var wg = sync.WaitGroup{}
+var max_go int = 150
+var guard = make(chan struct{}, 200)
+
 func BFSGo(start, end WikiPage) ([]WikiPage, int) {
 	queue := make([][]WikiPage, 0)
 	var visited sync.Map
@@ -122,50 +127,60 @@ func BFSGo(start, end WikiPage) ([]WikiPage, int) {
 	newPath := make(chan []WikiPage)
 	// visited := make(map[string]bool)
 	visited.Store(start.Title, true)
-	go func(){
+	go func() {
 		defer close(newPath)
-		for len(queue) > 0{
-			for i := 0; i < 5; i++{
+		for len(queue) > 0 {
+			tmpqueue := make([][]WikiPage, 0)
+			a := len(queue)
+			for i := 0; i < a; i++ {
 				curpath := queue[0]
 				queue = queue[1:]
 				wg.Add(1)
-				go BFSHelper(curpath, end, newPath, &visited)
-				m.Lock()
-				queue = append(queue, <-newPath)
-				m.Unlock()
+				guard <- struct{}{}
+				go BFSHelper(curpath, end, newPath, &visited, &tmpqueue)
+				// m.Lock()
+				// tmpqueue = append(tmpqueue, <-newPath)
+				// m.Unlock()
 				// time.Sleep(5*time.Millisecond)
+				// }
+				// fmt.Println("Wait 5 sec")
+				// time.Sleep(5 * time.Second)
 			}
 			wg.Wait()
-			fmt.Println("Wait 5 sec")
-			time.Sleep(5*time.Second)
+			fmt.Println(tmpqueue)
+			queue = tmpqueue
+			// fmt.Println(queue)
+			fmt.Println("Masuk Sini!")
+			tmpqueue = nil
+			time.Sleep(time.Millisecond * 500)
 		}
+		fmt.Println("TESTES")
 	}()
 	for n := range newPath {
 		path := n
 		// fmt.Println(path)
-		if len(path) == 0{
+		if len(path) == 0 {
 			return nil, syncMapLen(&visited)
 		}
- 		// fmt.Println(path)
-		if path[len(path) - 1].Title == end.Title {
+		// fmt.Println(path)
+		if path[len(path)-1].Title == end.Title {
 			return path, syncMapLen(&visited)
 		}
-		
-		
+
 	}
 	return nil, syncMapLen(&visited)
 }
-func BFSHelper(path []WikiPage, end WikiPage, newPath chan <-[]WikiPage, visited *sync.Map){
+func BFSHelper(path []WikiPage, end WikiPage, newPath chan<- []WikiPage, visited *sync.Map, tmpqueue *[][]WikiPage) {
 	defer wg.Done()
 	// time.Sleep(time.Second)
-	if len(path) == 0{
+	if len(path) == 0 {
 		newPath <- nil
 		return
 	}
 	lastPage := path[len(path)-1]
 	links, err := getWikiLinks(lastPage, end)
 	fmt.Println(len(links))
-	if err != nil{
+	if err != nil {
 		// fmt.Println(path)
 		newPath <- nil
 		fmt.Println("error")
@@ -179,20 +194,22 @@ func BFSHelper(path []WikiPage, end WikiPage, newPath chan <-[]WikiPage, visited
 			newPathtmp := append([]WikiPage{}, path...)
 			newPathtmp = append(newPathtmp, link)
 			newPath <- newPathtmp
-			
+			m.Lock()
+			*tmpqueue = append(*tmpqueue, newPathtmp)
+			m.Unlock()
 		}
 	}
-
+	<-guard
 }
+
 func syncMapLen(sm *sync.Map) int {
 	var i int
 	sm.Range(func(k, v interface{}) bool {
-        i++
-        return true
-    })
-    return i
+		i++
+		return true
+	})
+	return i
 }
-
 
 // IDS Algorithm
 func IDS(start, end WikiPage, maxDepth int) ([]WikiPage, int) {
@@ -256,6 +273,7 @@ func main() {
 	if path != nil {
 		fmt.Printf("Number of articles checked: %d\n", nodesChecked)
 		fmt.Printf("Number of articles traversed: %d\n", len(path))
+		fmt.Println(path)
 		fmt.Println("Traversal route:")
 		for _, page := range path {
 			fmt.Printf("- %s\n", page.Title)
