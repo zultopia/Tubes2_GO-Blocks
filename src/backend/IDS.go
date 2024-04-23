@@ -1,13 +1,16 @@
 package main
 
 import (
+	"fmt"
 )
 
 func IDS(start, end WikiPage, maxDepth int) ([]WikiPage, int) {
+	maxDepth = 3
 	nodesChecked := 0
-	var cache map[WikiPage][]WikiPage
+	cache := make(map[string][]WikiPage)
 	for depth := 1; depth <= maxDepth; depth++ {
-		path, nodesChecked := DLS(start, end, depth, cache)
+		path, nodesChecked := DLS(start, end, depth, &cache)
+		fmt.Println(depth)
 		if path != nil {
 			return path, nodesChecked
 		}
@@ -16,20 +19,22 @@ func IDS(start, end WikiPage, maxDepth int) ([]WikiPage, int) {
 }
 
 // DLS up to a given depth
-func DLS(start, end WikiPage, depth int, cache map[WikiPage][]WikiPage) ([]WikiPage, int) {
-	if depth == 0 && start.Title != end.Title {
-		return nil, 1
-	}
+// var count = 0
+func DLS(start, end WikiPage, depth int, cache *map[string][]WikiPage) ([]WikiPage, int) {
 	if start.Title == end.Title {
 		return []WikiPage{start}, 1
 	}
+	if depth == 0{
+		return nil, 1
+	}
 	currentChecked := 1
 	links := []WikiPage{}
-	if cache[start] == nil{
+	if (*cache)[start.Title] == nil{
 		links, _ := getWikiLinks(start, end)
-		cache[start] = links 
+		// count++
+		(*cache)[start.Title] = links 
 	}else{
-		links = cache[start] 
+		links = (*cache)[start.Title] 
 	}
 	for _, link := range links {
 		path, nodesChecked := DLS(link, end, depth-1, cache)
@@ -38,5 +43,6 @@ func DLS(start, end WikiPage, depth int, cache map[WikiPage][]WikiPage) ([]WikiP
 			return append([]WikiPage{start}, path...), currentChecked
 		}
 	}
+	// fmt.Println(count)
 	return nil, currentChecked
 }

@@ -50,6 +50,7 @@ func BFSGo(start, end WikiPage) ([][]WikiPage, int) {
 				break
 			}
 		}
+		visited.Store(end, true)
 		// fmt.Println("TESTES")
 	}()
 	for n := range newPath {

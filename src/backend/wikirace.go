@@ -111,7 +111,7 @@ func main() {
 	elapsedTime := endTime.Sub(startTime)
 	fmt.Printf("Number of articles checked: %d\n", nodesChecked)
 	fmt.Println(multipath)
-	fmt.Println(len(multipath))
+	// fmt.Println(len(multipath))
 	if path != nil || multipath != nil{
 		fmt.Printf("Number of articles checked: %d\n", nodesChecked)
 		fmt.Printf("Number of articles traversed: %d\n", len(path))
