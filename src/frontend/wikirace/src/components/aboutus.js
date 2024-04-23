@@ -7,8 +7,8 @@ import team from './assets/team.png';
 function AboutUs() {
     return (
         <div>
-            <img src={mater} alt="Mater" className="mater-image"/>
             <img src={title} alt="Title" className="about-us-title"/>
+            <img src={mater} alt="Mater" className="mater-image"/>
             <img src={team} alt="Our Team" className="team-image"/>
             <div className="intro">
                 <h1>⭐ Welcome to Our Wikirace ⭐</h1>
