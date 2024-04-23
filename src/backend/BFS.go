@@ -12,7 +12,7 @@ var solution = make([][]WikiPage, 0)
 
 func BFSGo(start, end WikiPage) ([][]WikiPage, int) {
 	if start.Title == end.Title{
-		return [][]WikiPage{[]WikiPage{end}}, 1
+		return [][]WikiPage{{end}}, 1
 	}
 	queue := make([][]WikiPage, 0)
 	var visited sync.Map

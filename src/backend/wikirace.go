@@ -101,7 +101,7 @@ func main() {
 	case "BFS":
 		multipath, nodesChecked = BFSGo(start, end)
 	case "IDS":
-		path, nodesChecked = IDS(start, end, 20) // Maximum depth for IDS
+		multipath, nodesChecked = IDS(start, end, 20) // Maximum depth for IDS
 	default:
 		fmt.Println("Invalid algorithm. Please use 'BFS' or 'IDS'.")
 		return
@@ -114,11 +114,14 @@ func main() {
 	// fmt.Println(len(multipath))
 	if path != nil || multipath != nil{
 		fmt.Printf("Number of articles checked: %d\n", nodesChecked)
-		fmt.Printf("Number of articles traversed: %d\n", len(path))
+		fmt.Printf("Number of articles traversed: %d\n", len(multipath[0]))
 		// fmt.Println(path)
 		fmt.Println("Traversal route:")
-		for _, page := range path {
-			fmt.Printf("- %s\n", page.Title)
+		for i, path := range multipath {
+			fmt.Printf("Solution ke-%d :\n", i+1)
+			for _, page := range path {
+				fmt.Printf("- %s\n", page.Title)
+			}
 		}
 		fmt.Printf("Search time: %d ms\n", elapsedTime.Milliseconds())
 	} else {
