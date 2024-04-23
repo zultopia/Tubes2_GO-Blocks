@@ -11,6 +11,9 @@ var solution = make([][]WikiPage, 0)
 // var level = 1
 
 func BFSGo(start, end WikiPage) ([][]WikiPage, int) {
+	if start.Title == end.Title{
+		return [][]WikiPage{[]WikiPage{end}}, 1
+	}
 	queue := make([][]WikiPage, 0)
 	var visited sync.Map
 	queue = append(queue, []WikiPage{start})

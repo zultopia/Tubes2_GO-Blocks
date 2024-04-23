@@ -115,7 +115,7 @@ func main() {
 	if path != nil || multipath != nil{
 		fmt.Printf("Number of articles checked: %d\n", nodesChecked)
 		fmt.Printf("Number of articles traversed: %d\n", len(path))
-		fmt.Println(path)
+		// fmt.Println(path)
 		fmt.Println("Traversal route:")
 		for _, page := range path {
 			fmt.Printf("- %s\n", page.Title)
