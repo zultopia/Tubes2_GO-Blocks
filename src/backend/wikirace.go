@@ -50,6 +50,7 @@ type WikiPage struct {
 // }
 
 func getWikiLinks(page, end WikiPage) ([]WikiPage, error) {
+	visited2 := make(map[string]bool)
 	c := colly.NewCollector(
 		colly.AllowedDomains("en.wikipedia.org"),
 	)
@@ -61,12 +62,15 @@ func getWikiLinks(page, end WikiPage) ([]WikiPage, error) {
 	c.OnHTML("a[href]", func(e *colly.HTMLElement) {
 		tmp := e.Attr("href")
 		// fmt.Println(tmp)
-		if strings.HasPrefix(tmp, "/wiki") && !strings.HasPrefix(tmp, "/wiki/File:") && !strings.HasPrefix(tmp, "#") && !strings.HasPrefix(tmp, "https://") {
+		if strings.HasPrefix(tmp, "/wiki") && !strings.HasPrefix(tmp, "/wiki/File:") && !strings.HasPrefix(tmp, "#") && !strings.HasPrefix(tmp, "https://"){
 			wikipage.URL = "https://en.wikipedia.org" + tmp
 			// fmt.Println(wikipage.URL)
 			wikipage.Title = strings.TrimPrefix(wikipage.URL, "https://en.wikipedia.org/wiki/")
 			// fmt.Println(wikipage.Title)
-			wikipages = append(wikipages, wikipage)
+			if !visited2[wikipage.Title]{
+				wikipages = append(wikipages, wikipage)
+				visited2[wikipage.Title] = true
+			}
 		}
 		// time.Sleep(5 * time.Millisecond)
 		if wikipage.Title == end.Title {
@@ -117,12 +121,13 @@ var m = sync.RWMutex{}
 
 // var m2 = sync.RWMutex{}
 var wg = sync.WaitGroup{}
-var max_go int = 50
+var max_go int = 100
 var guard = make(chan struct{}, max_go)
-var solution = make([][] WikiPage,0)
+var solution = make([][]WikiPage, 0)
+// var level = 1
+
 func BFSGo(start, end WikiPage) ([][]WikiPage, int) {
 	queue := make([][]WikiPage, 0)
-
 	var visited sync.Map
 	queue = append(queue, []WikiPage{start})
 	newPath := make(chan []WikiPage)
@@ -131,9 +136,10 @@ func BFSGo(start, end WikiPage) ([][]WikiPage, int) {
 	go func() {
 		defer close(newPath)
 		for len(queue) > 0 {
+			// fmt.Println(solF)
 			tmpqueue := make([][]WikiPage, 0)
-			a := len(queue)
-			for i := 0; i < a; i++ {
+			// a := len(queue)
+			for range queue {
 				curpath := queue[0]
 				queue = queue[1:]
 				wg.Add(1)
@@ -148,36 +154,38 @@ func BFSGo(start, end WikiPage) ([][]WikiPage, int) {
 				// time.Sleep(5 * time.Second)
 			}
 			wg.Wait()
-			fmt.Println(tmpqueue)
+			// level++
+			// fmt.Println(len(queue))
 			queue = tmpqueue
+			// fmt.Println("Masuk Sini! level ", level)
+			// fmt.Println(len(tmpqueue[0]))
 			// fmt.Println(queue)
-			fmt.Println("Masuk Sini!")
-			tmpqueue = nil
-			time.Sleep(time.Millisecond * 500)
-			if len(solution) > 0{
+			// fmt.Println()
+			time.Sleep(time.Second*2)
+			if len(solution) > 0 {
 				break
 			}
 		}
-		fmt.Println("TESTES")
+		// fmt.Println("TESTES")
 	}()
 	for n := range newPath {
 		path := n
-		// fmt.Println(path)
+		// fmt.Println(len(path))
 		if len(path) == 0 {
 			return nil, syncMapLen(&visited)
 		}
-		// fmt.Println(path)
+		// if path[len(path)-1].Title == "Elon_Musk" {
+		// 	fmt.Println(path)
+		// }
 		if path[len(path)-1].Title == end.Title {
 			// return path, syncMapLen(&visited)
+			// fmt.Println(path)
 			solution = append(solution, path)
 		}
-
 	}
 	// if solution tidak kosng, ....
-	if len(solution) > 0{
-		return solution, syncMapLen(&visited)
-	}
-	return nil, syncMapLen(&visited)
+
+	return solution, syncMapLen(&visited)
 }
 func BFSHelper(path []WikiPage, end WikiPage, newPath chan<- []WikiPage, visited *sync.Map, tmpqueue *[][]WikiPage) {
 	defer wg.Done()
@@ -188,7 +196,7 @@ func BFSHelper(path []WikiPage, end WikiPage, newPath chan<- []WikiPage, visited
 	}
 	lastPage := path[len(path)-1]
 	links, err := getWikiLinks(lastPage, end)
-	fmt.Println(len(links))
+	// fmt.Println(len(links))
 	if err != nil {
 		// fmt.Println(path)
 		newPath <- nil
@@ -199,7 +207,10 @@ func BFSHelper(path []WikiPage, end WikiPage, newPath chan<- []WikiPage, visited
 	for _, link := range links {
 		_, ok := visited.Load(link.Title)
 		if !ok {
-			visited.Store(link.Title, true)
+			// fmt.Println(link.Title)
+			if link.Title != end.Title{
+				visited.Store(link.Title, true)
+			}
 			newPathtmp := append([]WikiPage{}, path...)
 			newPathtmp = append(newPathtmp, link)
 			newPath <- newPathtmp
@@ -281,7 +292,8 @@ func main() {
 	elapsedTime := endTime.Sub(startTime)
 	fmt.Printf("Number of articles checked: %d\n", nodesChecked)
 	fmt.Println(multipath)
-	if path != nil {
+	fmt.Println(len(multipath))
+	if path != nil || multipath != nil{
 		fmt.Printf("Number of articles checked: %d\n", nodesChecked)
 		fmt.Printf("Number of articles traversed: %d\n", len(path))
 		fmt.Println(path)
