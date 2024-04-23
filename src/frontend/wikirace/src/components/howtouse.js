@@ -7,11 +7,11 @@ import sally from './assets/sally.png';
 function HowToUse() {
     return (
         <div>
+            <img src={title} alt="Title" className="how-to-use-title"/>
+            <img src={sally} alt="Sally" className="sally-image"/>
             <div className="step-container">
                 <img src={step} alt="Step" className="step" />
             </div>
-            <img src={title} alt="Title" className="how-to-use-title"/>
-            <img src={sally} alt="Sally" className="sally-image"/>
         </div>
     );
 }

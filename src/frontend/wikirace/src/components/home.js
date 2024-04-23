@@ -44,35 +44,47 @@ function Home() {
     setTargetArticle(temp);
   };
 
-  const handleStartSelect = (suggestion) => {
+  const handleStartSelect = (suggestion, event) => {
+    if (event) {
+      event.stopPropagation(); 
+    }
     setStartArticle(suggestion);
     setIsStartAutocompleteOpen(false); 
   };
 
-  const handleEndSelect = (suggestion) => {
+  const handleEndSelect = (suggestion, event) => {
+    if (event) {
+      event.stopPropagation(); 
+    }
     setTargetArticle(suggestion);
     setIsEndAutocompleteOpen(false); 
   };
 
-  const handleStartContainerClick = () => {
-    if (startArticle.length > 0) {
-      setIsStartAutocompleteOpen(true); 
-    } else {
+  const handleStartFocus = () => {
+    setIsStartAutocompleteOpen(true); 
+  };
+
+  const handleEndFocus = () => {
+    setIsEndAutocompleteOpen(true); 
+  };
+
+  const handleStartContainerClick = (event) => {
+    event.stopPropagation();
+    if (startArticle.length === 0) {
       setIsStartAutocompleteOpen(false); 
+    }
+  };
+
+  const handleEndContainerClick = (event) => {
+    event.stopPropagation();
+    if (targetArticle.length === 0) {
+      setIsEndAutocompleteOpen(false); 
     }
   };
 
   const handleStartInputChange = (e) => {
     setStartArticle(e.target.value);
     setIsStartAutocompleteOpen(true); 
-  };
-
-  const handleEndContainerClick = () => {
-    if (targetArticle.length > 0) {
-      setIsEndAutocompleteOpen(true); 
-    } else {
-      setIsEndAutocompleteOpen(false); 
-    }
   };
 
   const handleEndInputChange = (e) => {
@@ -128,35 +140,37 @@ function Home() {
 
       {/* Kontainer Logika */}
       <div className="logic-container">
-        <div className="start-container">
+        <div className="start-container" onClick={handleStartContainerClick}>
           <input
             type="text"
             value={startArticle}
             onChange={handleStartInputChange}
+            onFocus={handleStartFocus}
             className="start-container"
             placeholder="Start Article"
           />
           {isStartAutocompleteOpen && (
             <WikipediaAutosuggest
               value={startArticle}
-              onSelect={handleStartSelect}
+              onSelect={(suggestion, event) => handleStartSelect(suggestion, event)}
               close={() => setIsStartAutocompleteOpen(false)}
           />
         )}
         </div>
 
-        <div className="end-container">
+        <div className="end-container" onClick={handleEndContainerClick}>
           <input
             type="text"
             value={targetArticle}
             onChange={handleEndInputChange}
+            onFocus={handleEndFocus}
             className="end-container"
             placeholder="End Article"
           />
           {isEndAutocompleteOpen && (
             <WikipediaAutosuggest2
               value={targetArticle}
-              onSelect={handleEndSelect}
+              onSelect={(suggestion, event) => handleEndSelect(suggestion, event)}
               close={() => setIsEndAutocompleteOpen(false)}
             />
           )}
