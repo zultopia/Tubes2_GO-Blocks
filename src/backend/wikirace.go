@@ -3,12 +3,12 @@ package main
 import (
 	"fmt"
 	"os"
-	"sync"
+
+	// "sync"
 	"time"
 )
 
 // WikiPage represents a Wikipedia page with its title and URL
-
 
 // getWikiLinks without cache
 // func getWikiLinks(page WikiPage) []WikiPage {
@@ -40,8 +40,6 @@ import (
 // 		}
 // 	}
 // }
-
-
 
 // BFS Algorithm
 func BFS(start, end WikiPage) ([]WikiPage, int) {
@@ -81,7 +79,6 @@ func BFS(start, end WikiPage) ([]WikiPage, int) {
 
 // IDS Algorithm
 
-
 func main() {
 	if len(os.Args) != 4 {
 		fmt.Println("Usage: go run wikirace.go <algorithm> <start_article> <end_article>")
@@ -112,7 +109,7 @@ func main() {
 	fmt.Printf("Number of articles checked: %d\n", nodesChecked)
 	fmt.Println(multipath)
 	// fmt.Println(len(multipath))
-	if path != nil || multipath != nil{
+	if path != nil || multipath != nil {
 		fmt.Printf("Number of articles checked: %d\n", nodesChecked)
 		fmt.Printf("Number of articles traversed: %d\n", len(multipath[0]))
 		// fmt.Println(path)

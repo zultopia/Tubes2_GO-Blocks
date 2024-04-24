@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"net/http"
 	"time"
 
@@ -50,7 +51,9 @@ func BFShandler(c *gin.Context) {
 	startPage := WikiPage{Title: request.StartTitle, URL: request.StartURL}
 	targetPage := WikiPage{Title: request.TargetTitle, URL: request.TargetURL}
 	startTime := time.Now()
+	fmt.Println(request)
 	path, articlesVisited := BFSGo(startPage, targetPage)
+	fmt.Println(path)
 	endTime := time.Now()
 	elapsedTime := endTime.Sub(startTime)
 

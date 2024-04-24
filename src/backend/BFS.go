@@ -15,6 +15,7 @@ var m = sync.RWMutex{}
 // var level = 1
 
 func BFSGo(start, end WikiPage) ([][]WikiPage, int) {
+	solution = make([][]WikiPage, 0)
 	if start.Title == end.Title {
 		return [][]WikiPage{{end}}, 1
 	}
