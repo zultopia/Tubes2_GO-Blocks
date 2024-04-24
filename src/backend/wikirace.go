@@ -2,51 +2,46 @@ package main
 
 import (
 	"fmt"
-	"net/http"
 	"os"
-	"strings"
 	"sync"
 	"time"
-
-	"golang.org/x/net/html"
 )
 
 // WikiPage represents a Wikipedia page with its title and URL
-type WikiPage struct {
-	Title string
-	URL   string
-}
+
 
 // getWikiLinks without cache
-func getWikiLinks(page WikiPage) []WikiPage {
-	links := make([]WikiPage, 0)
-	resp, err := http.Get(page.URL)
-	if err != nil {
-		fmt.Println("Error fetching page:", err)
-		return links
-	}
-	defer resp.Body.Close()
+// func getWikiLinks(page WikiPage) []WikiPage {
+// 	links := make([]WikiPage, 0)
+// 	resp, err := http.Get(page.URL)
+// 	if err != nil {
+// 		fmt.Println("Error fetching page:", err)
+// 		return links
+// 	}
+// 	defer resp.Body.Close()
 
-	z := html.NewTokenizer(resp.Body)
-	for {
-		tt := z.Next()
-		switch tt {
-		case html.ErrorToken:
-			return links
-		case html.StartTagToken, html.SelfClosingTagToken:
-			t := z.Token()
-			if t.Data == "a" {
-				for _, attr := range t.Attr {
-					if attr.Key == "href" && strings.HasPrefix(attr.Val, "/wiki/") {
-						title := strings.TrimPrefix(attr.Val, "/wiki/")
-						link := WikiPage{Title: title, URL: "https://en.wikipedia.org" + attr.Val}
-						links = append(links, link)
-					}
-				}
-			}
-		}
-	}
-}
+// 	z := html.NewTokenizer(resp.Body)
+// 	for {
+// 		tt := z.Next()
+// 		switch tt {
+// 		case html.ErrorToken:
+// 			return links
+// 		case html.StartTagToken, html.SelfClosingTagToken:
+// 			t := z.Token()
+// 			if t.Data == "a" {
+// 				for _, attr := range t.Attr {
+// 					if attr.Key == "href" && strings.HasPrefix(attr.Val, "/wiki/") {
+// 						title := strings.TrimPrefix(attr.Val, "/wiki/")
+// 						link := WikiPage{Title: title, URL: "https://en.wikipedia.org" + attr.Val}
+// 						links = append(links, link)
+// 					}
+// 				}
+// 			}
+// 		}
+// 	}
+// }
+
+
 
 // BFS Algorithm
 func BFS(start, end WikiPage) ([]WikiPage, int) {
@@ -66,7 +61,7 @@ func BFS(start, end WikiPage) ([]WikiPage, int) {
 			return path, len(visited)
 		}
 
-		links := getWikiLinks(lastPage)
+		links, _ := getWikiLinks(lastPage, end)
 		for _, link := range links {
 			if !visited[link.Title] {
 				visited[link.Title] = true
@@ -79,96 +74,13 @@ func BFS(start, end WikiPage) ([]WikiPage, int) {
 
 	return nil, len(visited)
 }
+
 var m = sync.RWMutex{}
+
 // var m2 = sync.RWMutex{}
-var wg = sync.WaitGroup{}
-func BFSGo(start, end WikiPage) ([]WikiPage, int) {
-	queue := make([][]WikiPage, 0)
-	queue = append(queue, []WikiPage{start})
-	newPath := make(chan []WikiPage)
-	var visited sync.Map
-	// visited := make(map[string]bool)
-	visited.Store(start.Title, true)
-	go func(){
-		defer close(newPath)
-		for len(queue) > 0{
-			curpath := queue[0]
-			queue = queue[1:]
-			wg.Add(1)
-			go BFSHelper(curpath, newPath, &visited)
-			m.Lock()
-			queue = append(queue, <-newPath)
-			m.Unlock()
-		}
-		wg.Wait()
-	}()
-	for n := range newPath {
-		path := n
-		if path[len(path) - 1].Title == end.Title {
-			return path, syncMapLen(&visited)
-		}
-		
-	}
-	return nil, syncMapLen(&visited)
-}
-func BFSHelper(path []WikiPage, newPath chan <-[]WikiPage, visited *sync.Map){
-	defer wg.Done()
-	lastPage := path[len(path)-1]
-	links := getWikiLinks(lastPage)
-	fmt.Println(1)
-	for _, link := range links {
-		_, ok := visited.Load(link.Title)
-		if !ok {
-			visited.Store(link.Title, true)
-			newPathtmp := append([]WikiPage{}, path...)
-			newPathtmp = append(newPathtmp, link)
-			newPath <- newPathtmp
-			
-		}
-	}
-
-}
-func syncMapLen(sm *sync.Map) int {
-	var i int
-	sm.Range(func(k, v interface{}) bool {
-        i++
-        return true
-    })
-    return i
-}
-
 
 // IDS Algorithm
-func IDS(start, end WikiPage, maxDepth int) ([]WikiPage, int) {
-	nodesChecked := 0
-	for depth := 1; depth <= maxDepth; depth++ {
-		path, nodesChecked := DLS(start, end, depth)
-		if path != nil {
-			return path, nodesChecked
-		}
-	}
-	return nil, nodesChecked
-}
 
-// DLS up to a given depth
-func DLS(start, end WikiPage, depth int) ([]WikiPage, int) {
-	if depth == 0 && start.Title != end.Title {
-		return nil, 1
-	}
-	if start.Title == end.Title {
-		return []WikiPage{start}, 1
-	}
-	currentChecked := 1
-	links := getWikiLinks(start)
-	for _, link := range links {
-		path, nodesChecked := DLS(link, end, depth-1)
-		currentChecked += nodesChecked
-		if path != nil {
-			return append([]WikiPage{start}, path...), currentChecked
-		}
-	}
-	return nil, currentChecked
-}
 
 func main() {
 	if len(os.Args) != 4 {
@@ -181,14 +93,15 @@ func main() {
 	end := WikiPage{Title: os.Args[3], URL: "https://en.wikipedia.org/wiki/" + os.Args[3]}
 
 	var path []WikiPage
+	var multipath [][]WikiPage
 	var nodesChecked int
 	startTime := time.Now()
 
 	switch algorithm {
 	case "BFS":
-		path, nodesChecked = BFSGo(start, end)
+		multipath, nodesChecked = BFSGo(start, end)
 	case "IDS":
-		path, nodesChecked = IDS(start, end, 20) // Maximum depth for IDS
+		multipath, nodesChecked = IDS(start, end, 20) // Maximum depth for IDS
 	default:
 		fmt.Println("Invalid algorithm. Please use 'BFS' or 'IDS'.")
 		return
@@ -196,13 +109,19 @@ func main() {
 
 	endTime := time.Now()
 	elapsedTime := endTime.Sub(startTime)
-
-	if path != nil {
+	fmt.Printf("Number of articles checked: %d\n", nodesChecked)
+	fmt.Println(multipath)
+	// fmt.Println(len(multipath))
+	if path != nil || multipath != nil{
 		fmt.Printf("Number of articles checked: %d\n", nodesChecked)
-		fmt.Printf("Number of articles traversed: %d\n", len(path))
+		fmt.Printf("Number of articles traversed: %d\n", len(multipath[0]))
+		// fmt.Println(path)
 		fmt.Println("Traversal route:")
-		for _, page := range path {
-			fmt.Printf("- %s\n", page.Title)
+		for i, path := range multipath {
+			fmt.Printf("Solution ke-%d :\n", i+1)
+			for _, page := range path {
+				fmt.Printf("- %s\n", page.Title)
+			}
 		}
 		fmt.Printf("Search time: %d ms\n", elapsedTime.Milliseconds())
 	} else {
