@@ -32,7 +32,7 @@ func IDS(start, end WikiPage, maxDepth int) ([][]WikiPage, int) {
 // var count = 0
 
 func DLS(start, end WikiPage, depth int, cache *map[string][]WikiPage) ([][]WikiPage, int) {
-	var max_go int = 100
+	var max_go int = 10
 	var guard = make(chan struct{}, max_go)
 	var wg = sync.WaitGroup{}
 	solution := make([][]WikiPage, 0)
@@ -81,18 +81,17 @@ func DLS(start, end WikiPage, depth int, cache *map[string][]WikiPage) ([][]Wiki
 		// fmt.Println(link)
 		wg.Add(1)
 		guard <- struct{}{}
-		go func(){
+		go func() {
 			curSolution, nodesChecked := DLS(link, end, depth-1, cache)
 			currentChecked += nodesChecked
 			if curSolution != nil {
 				solution = append(solution, curSolution...)
 			}
-			<- guard
+			<-guard
 			defer wg.Done()
 		}()
 	}
 	wg.Wait()
-
 
 	for i, path := range solution {
 		solution[i] = append([]WikiPage{start}, path...)

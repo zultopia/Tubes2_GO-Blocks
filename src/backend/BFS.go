@@ -1,17 +1,20 @@
 package main
+
 import (
 	"fmt"
 	"sync"
 	"time"
 )
+
 var wg = sync.WaitGroup{}
-var max_go int = 100
+var max_go int = 20
 var guard = make(chan struct{}, max_go)
 var solution = make([][]WikiPage, 0)
+
 // var level = 1
 
 func BFSGo(start, end WikiPage) ([][]WikiPage, int) {
-	if start.Title == end.Title{
+	if start.Title == end.Title {
 		return [][]WikiPage{{end}}, 1
 	}
 	queue := make([][]WikiPage, 0)
@@ -39,6 +42,7 @@ func BFSGo(start, end WikiPage) ([][]WikiPage, int) {
 				// }
 				// fmt.Println("Wait 5 sec")
 				// time.Sleep(5 * time.Second)
+				// time.Sleep(time.Millisecond * 1)
 			}
 			wg.Wait()
 			// level++
@@ -48,7 +52,7 @@ func BFSGo(start, end WikiPage) ([][]WikiPage, int) {
 			// fmt.Println(len(tmpqueue[0]))
 			// fmt.Println(queue)
 			// fmt.Println()
-			time.Sleep(time.Second*2)
+			time.Sleep(time.Second * 2)
 			if len(solution) > 0 {
 				break
 			}
@@ -96,7 +100,7 @@ func BFSHelper(path []WikiPage, end WikiPage, newPath chan<- []WikiPage, visited
 		_, ok := visited.Load(link.Title)
 		if !ok {
 			// fmt.Println(link.Title)
-			if link.Title != end.Title{
+			if link.Title != end.Title {
 				visited.Store(link.Title, true)
 			}
 			newPathtmp := append([]WikiPage{}, path...)
