@@ -75,7 +75,7 @@ func BFS(start, end WikiPage) ([]WikiPage, int) {
 	return nil, len(visited)
 }
 
-var m = sync.RWMutex{}
+// var m = sync.RWMutex{}
 
 // var m2 = sync.RWMutex{}
 
