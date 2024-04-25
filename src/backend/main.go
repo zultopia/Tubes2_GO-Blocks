@@ -58,7 +58,7 @@ func BFShandler(c *gin.Context) {
 	elapsedTime := endTime.Sub(startTime)
 
 	c.JSON(http.StatusOK, gin.H{
-		"path":            path[0],
+		"paths":           path,
 		"articlesVisited": articlesVisited,
 		"executionTime":   elapsedTime.Milliseconds(),
 	})
@@ -67,7 +67,20 @@ func BFShandler(c *gin.Context) {
 // LikeJoke increments the likes of a particular joke Item
 func IDShandler(c *gin.Context) {
 	c.Header("Content-Type", "application/json")
+	request := Request{}
+	c.BindJSON(&request)
+	startPage := WikiPage{Title: request.StartTitle, URL: request.StartURL}
+	targetPage := WikiPage{Title: request.TargetTitle, URL: request.TargetURL}
+	startTime := time.Now()
+	fmt.Println(request)
+	path, articlesVisited := IDS(startPage, targetPage, 10)
+	fmt.Println(path)
+	endTime := time.Now()
+	elapsedTime := endTime.Sub(startTime)
+
 	c.JSON(http.StatusOK, gin.H{
-		"message": "LikeJoke handler not implemented yet",
+		"paths":           path,
+		"articlesVisited": articlesVisited,
+		"executionTime":   elapsedTime.Milliseconds(),
 	})
 }

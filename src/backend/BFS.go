@@ -7,7 +7,7 @@ import (
 )
 
 var wg = sync.WaitGroup{}
-var max_go int = 150
+var max_go int = 100
 var guard = make(chan struct{}, max_go)
 var solution = make([][]WikiPage, 0)
 var m = sync.RWMutex{}
