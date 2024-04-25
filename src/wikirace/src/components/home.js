@@ -184,32 +184,30 @@ function Home() {
           {isLoading ? (
             <p>Loading...</p>
           ) : result ? (
-            // <div>
-            //   <h2>Result</h2>
-            //   {result.paths.map((path, index) => (
-            //     <div>
-            //       <h3>Path {index + 1}</h3>
-            //       <ul>
-            //         {path.map((page, index) => (
-            //           <li key={index}>
-            //             <a href={page.URL} target="_blank" rel="noopener noreferrer">
-            //               {page.Title}
-            //             </a>
-            //           </li>
-            //         ))}
-            //       </ul>
-            //     </div>
-            //   ))}
+            <div>
+              <h2>Result</h2>
+              {result.paths.map((path, index) => (
+                <div>
+                  <h3>Path {index + 1}</h3>
+                  <ul>
+                    {path.map((page, index) => (
+                      <li key={index}>
+                        <a href={page.URL} target="_blank" rel="noopener noreferrer">
+                          {page.Title}
+                        </a>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              ))}
 
-            //   <p>Number of Articles Visited: {result.articlesVisited}</p>
-            //   <p>Number of Articles Checked: {result.articlesChecked}</p>
-            //   <p>Execution Time: {result.executionTime} ms</p>
-            // </div>
-
+              <p>Number of Articles Visited: {result.articlesVisited}</p>
+              <p>Number of Articles Checked: {result.articlesChecked}</p>
+              <p>Execution Time: {result.executionTime} ms</p>
               <Graf 
                 paths = {result.paths}
               />
-
+            </div>
           ) : null}
         </div>
       </div>

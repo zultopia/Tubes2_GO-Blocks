@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"math/rand"
 	"strings"
 
 	"github.com/gocolly/colly/v2"
@@ -31,9 +32,9 @@ func getWikiLinks(page, end WikiPage) ([]WikiPage, error) {
 		colly.AllowedDomains("en.wikipedia.org"),
 	)
 	// set fake Random User Agents
-	// c.OnRequest(func(r *colly.Request) {
-	// 	r.Headers.Set("User-Agent", user_agent[rand.Intn(10)])
-	// })
+	c.OnRequest(func(r *colly.Request) {
+		r.Headers.Set("User-Agent", user_agent[rand.Intn(10)])
+	})
 
 	var wikipages []WikiPage
 	var wikipage WikiPage

@@ -7,7 +7,7 @@ import (
 )
 
 var wg = sync.WaitGroup{}
-var max_go int = 100
+var max_go int = 50
 var guard = make(chan struct{}, max_go)
 var solution = make([][]WikiPage, 0)
 var m = sync.RWMutex{}
@@ -64,20 +64,10 @@ func BFSGo(start, end WikiPage) ([][]WikiPage, int) {
 	}()
 	for n := range newPath {
 		path := n
-		// fmt.Println(len(path))
-		if len(path) == 0 {
-			return nil, syncMapLen(&visited)
-		}
-		// if path[len(path)-1].Title == "Elon_Musk" {
-		// 	fmt.Println(path)
-		// }
 		if path[len(path)-1].Title == end.Title {
-			// return path, syncMapLen(&visited)
-			// fmt.Println(path)
 			solution = append(solution, path)
 		}
 	}
-	// if solution tidak kosng, ....
 
 	return solution, syncMapLen(&visited)
 }
@@ -90,9 +80,7 @@ func BFSHelper(path []WikiPage, end WikiPage, newPath chan<- []WikiPage, visited
 	}
 	lastPage := path[len(path)-1]
 	links, err := getWikiLinks(lastPage, end)
-	// fmt.Println(len(links))
 	if err != nil {
-		// fmt.Println(path)
 		newPath <- nil
 		fmt.Println("error")
 		return

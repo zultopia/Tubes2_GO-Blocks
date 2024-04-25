@@ -47,32 +47,33 @@ function Graf({paths}) {
           },
           physics: {
             enabled: true,
-            forceAtlas2Based: {
-              gravitationalConstant: -26,
-              centralGravity: 0.005,
-              springLength: 230,
-              springConstant: 0.18,
-            },
-            maxVelocity: 146,
-            solver: "forceAtlas2Based",
-            timestep: 0.35,
-            stabilization: { iterations: 150 },
+        //     forceAtlas2Based: {
+        //       gravitationalConstant: -26,
+        //       centralGravity: 0.005,
+        //       springLength: 230,
+        //       springConstant: 0.18,
+        //     },
+        //     maxVelocity: 146,
+        //     solver: "forceAtlas2Based",
+        //     timestep: 0.35,
+        //     stabilization: { iterations: 150 },
+          },
+          interaction: {
+            navigationButtons: true,
+            zoomView: true, 
+            hover: true,
           },
     };
   
-    const events = {
-      select: function(event) {
-        var { nodes, edges } = event;
-      }
-    };
+    // const events = {
+    //   select: function(event) {
+    //     var { nodes, edges } = event;
+    //   }
+    // };
     return (
       <Graph
         graph={graph}
         options={options}
-        events={events}
-        getNetwork={network => {
-          //  if you want access to vis.js network api you can set the state in a parent component using this property
-        }}
       />
     );
   }

@@ -333,7 +333,7 @@ html, body {
     min-width: 500px;
     max-height: 100px;
     min-height: 230px;
-    z-index: -10;
+    z-index: 10;
     border-radius: 8px;
     margin-top: 170px;
     margin-left: 180px;
