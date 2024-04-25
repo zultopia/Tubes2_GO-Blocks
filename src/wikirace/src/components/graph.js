@@ -4,7 +4,7 @@ import Graph from "react-graph-vis";
 function Graf({paths}) {
     var tempNodes = []
     var tempEdges = []
-    paths.map((path, index) => {
+    paths.map((path) => {
         var len = path.length
         for (var i = 0; i < len; i++) {
             var conditional = true;
@@ -16,7 +16,6 @@ function Graf({paths}) {
                 return true
             })
             
-            console.log(conditional)
             if (conditional) {
                 tempNodes.push({id: path[i].Title, label: path[i].Title, title: path[i].URL})
             }
