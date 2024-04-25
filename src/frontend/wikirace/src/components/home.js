@@ -15,6 +15,8 @@ import end from './assets/end.png';
 import search from './assets/search.png';
 import piston from './assets/piston.png';
 import switchs from './assets/switch.png';
+import one from './assets/one.png';
+import many from './assets/many.png';
 import WikipediaAutosuggest from './wikipediaautosuggest';
 import WikipediaAutosuggest2 from './wikipediaautosuggest2';
 
@@ -82,6 +84,13 @@ function Home() {
     setIsEndAutocompleteOpen(true); 
   };
 
+  const Switch = () => {
+    return <label className = "switch">
+      <input type = "checkbox" />
+      <span className = "slider" />
+      </label>
+  }
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     setIsLoading(true);
@@ -113,6 +122,8 @@ function Home() {
         <img src={idsSrc} alt="IDS Title" className="ids-text" /> 
         <img src={start} alt="START" className="start-image" />
         <img src={end} alt="END" className="end-image" />
+        <img src={one} alt="ONE" className="one-image" />
+        <img src={many} alt="MANY" className="many-image" />
         <img src={search} alt="SEARCH" className="search-image" />
         <button className="switch-button">
           <img src={switchs} alt="Switch" onClick={handleSwitch} />
@@ -123,6 +134,7 @@ function Home() {
         <button className="cruz-button" onClick={handleCruzClick}>
           <img src={cruz} alt="Button 2" />
         </button>
+        <Switch />
         <button className="piston-button" onClick={handleSubmit}>
             <img src={piston} alt="Piston" />
           </button>
