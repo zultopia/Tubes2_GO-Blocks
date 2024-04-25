@@ -7,7 +7,6 @@ import bfs_text from './assets/bfs.png'
 import ids_text from './assets/ids.png'
 import bfs_text2 from './assets/bfs2.png'
 import ids_text2 from './assets/ids2.png'
-import './styles.css';
 import mcqueen from './assets/mcqueen.png';
 import cruz from './assets/cruz.png';
 import start from './assets/start.png';
@@ -19,6 +18,7 @@ import one from './assets/one.png';
 import many from './assets/many.png';
 import WikipediaAutosuggest from './wikipediaautosuggest';
 import WikipediaAutosuggest2 from './wikipediaautosuggest2';
+import Switch from './switch';
 
 function Home() {
   const [startArticle, setStartArticle] = useState('');
@@ -84,12 +84,13 @@ function Home() {
     setIsEndAutocompleteOpen(true); 
   };
 
-  const Switch = () => {
-    return <label className = "switch">
-      <input type = "checkbox" />
-      <span className = "slider" />
-      </label>
-  }
+  const handleSwitchToggle = (isOn) => {
+    if (isOn) {
+      console.log('Algoritma one solution');
+    } else {
+      console.log('Algoritma many solution');
+    }
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -134,7 +135,7 @@ function Home() {
         <button className="cruz-button" onClick={handleCruzClick}>
           <img src={cruz} alt="Button 2" />
         </button>
-        <Switch />
+        <Switch onToggle={handleSwitchToggle} />
         <button className="piston-button" onClick={handleSubmit}>
             <img src={piston} alt="Piston" />
           </button>
