@@ -388,7 +388,7 @@ html, body {
 }
 
 .result-container {
-    background: linear-gradient(to bottom, #e1dadb, #fefcfc);
+    background: linear-gradient(to bottom, #ffffff, #ffffff);
     padding: 100px;
     max-width: 100px;
     min-width: 500px;
@@ -408,9 +408,9 @@ html, body {
     box-shadow: 
         inset 0 0 0 5px #ffef76,
         inset 0 0 0 10px rgba(146, 17, 17, 0.9);
-    color: white; 
+    color: rgb(0, 0, 0); 
     font-family: 'Comic Sans MS', sans-serif; 
-    font-size: 16px; 
+    font-size: 14px; 
 }
 
 /* Page How To Use */
