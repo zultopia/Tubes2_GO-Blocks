@@ -12,7 +12,7 @@ var guard = make(chan struct{}, max_go)
 var solution = make([][]WikiPage, 0)
 var m = sync.RWMutex{}
 
-// var level = 1
+var level = 1
 
 func BFSGo(start, end WikiPage) ([][]WikiPage, int) {
 	solution = make([][]WikiPage, 0)
@@ -47,10 +47,10 @@ func BFSGo(start, end WikiPage) ([][]WikiPage, int) {
 				// time.Sleep(time.Millisecond * 1)
 			}
 			wg.Wait()
-			// level++
+			level++
 			// fmt.Println(len(queue))
 			queue = tmpqueue
-			// fmt.Println("Masuk Sini! level ", level)
+			fmt.Println("Masuk Sini! level ", level)
 			// fmt.Println(len(tmpqueue[0]))
 			// fmt.Println(queue)
 			// fmt.Println()
