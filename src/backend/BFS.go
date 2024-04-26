@@ -7,12 +7,13 @@ import (
 )
 
 var wg = sync.WaitGroup{}
-var max_go int = 50
+var max_go int = 200
 var guard = make(chan struct{}, max_go)
 var solution = make([][]WikiPage, 0)
 var m = sync.RWMutex{}
 
-var level = 1
+// var counter = 0
+var level = 0
 
 func BFSGo(start, end WikiPage) ([][]WikiPage, int) {
 	solution = make([][]WikiPage, 0)
@@ -32,11 +33,17 @@ func BFSGo(start, end WikiPage) ([][]WikiPage, int) {
 			tmpqueue := make([][]WikiPage, 0)
 			// a := len(queue)
 			for range queue {
+				// if counter > 100{
+				// 	time.Sleep(time.Second*5)
+				// 	counter = 0
+				// 	fmt.Println(counter)
+				// }
 				curpath := queue[0]
 				queue = queue[1:]
 				wg.Add(1)
 				guard <- struct{}{}
 				go BFSHelper(curpath, end, newPath, &visited, &tmpqueue)
+				// counter++
 				// m.Lock()
 				// tmpqueue = append(tmpqueue, <-newPath)
 				// m.Unlock()
@@ -64,10 +71,11 @@ func BFSGo(start, end WikiPage) ([][]WikiPage, int) {
 	}()
 	for n := range newPath {
 		path := n
-		if path == nil{
+		if path == nil {
 			continue
 		}
 		if path[len(path)-1].Title == end.Title {
+			fmt.Println(path)
 			solution = append(solution, path)
 		}
 	}

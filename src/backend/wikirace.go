@@ -100,6 +100,7 @@ func main() {
 	case "IDS":
 		multipath, nodesChecked = IDS(start, end, 20) // Maximum depth for IDS
 	default:
+		getWikiLinks(start, end)
 		fmt.Println("Invalid algorithm. Please use 'BFS' or 'IDS'.")
 		return
 	}

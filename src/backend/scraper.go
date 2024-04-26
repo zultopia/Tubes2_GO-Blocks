@@ -2,10 +2,10 @@ package main
 
 import (
 	"fmt"
-	"math/rand"
 	"strings"
 
 	"github.com/gocolly/colly/v2"
+	"github.com/gocolly/colly/v2/extensions"
 )
 
 // WikiPage represents a Wikipedia page with its title and URL
@@ -30,11 +30,10 @@ func getWikiLinks(page, end WikiPage) ([]WikiPage, error) {
 	visited2 := make(map[string]bool)
 	c := colly.NewCollector(
 		colly.AllowedDomains("en.wikipedia.org"),
+		colly.Async(true),
 	)
-	// set fake Random User Agents
-	c.OnRequest(func(r *colly.Request) {
-		r.Headers.Set("User-Agent", user_agent[rand.Intn(10)])
-	})
+	// Add Random User Agents
+	extensions.RandomUserAgent(c)
 
 	var wikipages []WikiPage
 	var wikipage WikiPage
@@ -44,7 +43,8 @@ func getWikiLinks(page, end WikiPage) ([]WikiPage, error) {
 	c.OnHTML("a[href]", func(e *colly.HTMLElement) {
 		tmp := e.Attr("href")
 		// fmt.Println(tmp)
-		if strings.HasPrefix(tmp, "/wiki") && !strings.HasPrefix(tmp, "/wiki/File:") && !strings.HasPrefix(tmp, "#") && !strings.HasPrefix(tmp, "https://") && !strings.HasPrefix(tmp, "/wiki/Special:") && !strings.HasPrefix(tmp, "/wiki/Category:") {
+		// time.Sleep(time.Second)
+		if strings.HasPrefix(tmp, "/wiki") && !strings.HasPrefix(tmp, "/wiki/File:") && !strings.HasPrefix(tmp, "#") && !strings.HasPrefix(tmp, "https://") && !strings.HasPrefix(tmp, "/wiki/Special:") && !strings.HasPrefix(tmp, "/wiki/Category:") &&  !strings.HasPrefix(tmp, "/wiki/Wikipedia:") &&  !strings.HasPrefix(tmp, "/wiki/Portal:") &&  !strings.HasPrefix(tmp, "/wiki/Help:"){
 			wikipage.URL = "https://en.wikipedia.org" + tmp
 			// fmt.Println(wikipage.URL)
 			wikipage.Title = strings.TrimPrefix(wikipage.URL, "https://en.wikipedia.org/wiki/")
@@ -54,15 +54,11 @@ func getWikiLinks(page, end WikiPage) ([]WikiPage, error) {
 				visited2[wikipage.Title] = true
 			}
 		}
-		// time.Sleep(5 * time.Millisecond)
-		if wikipage.Title == end.Title {
-			return
-		}
-
 	})
 	err := c.Visit(page.URL)
 	if err != nil {
 		return nil, err
 	}
+	c.Wait()
 	return wikipages, err
 }

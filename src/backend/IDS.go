@@ -8,7 +8,7 @@ import (
 func IDS(start, end WikiPage, maxDepth int) ([][]WikiPage, int) {
 	nodesChecked := 0
 	var solution [][]WikiPage
-	cache := make(map[string][]WikiPage)
+	var cache sync.Map
 	for depth := 1; depth <= maxDepth; depth++ {
 		/*
 				path, nodesChecked := DLS(start, end, depth, &cache, &solution)
@@ -31,8 +31,8 @@ func IDS(start, end WikiPage, maxDepth int) ([][]WikiPage, int) {
 // DLS up to a given depth
 // var count = 0
 
-func DLS(start, end WikiPage, depth int, cache *map[string][]WikiPage) ([][]WikiPage, int) {
-	var max_go int = 10
+func DLS(start, end WikiPage, depth int, cache *sync.Map) ([][]WikiPage, int) {
+	var max_go int = 15
 	var guard = make(chan struct{}, max_go)
 	var wg = sync.WaitGroup{}
 	solution := make([][]WikiPage, 0)
@@ -43,20 +43,24 @@ func DLS(start, end WikiPage, depth int, cache *map[string][]WikiPage) ([][]Wiki
 		/*
 			return []WikiPage{start}, 1
 		*/
+		fmt.Println("ketemu")
 		path := []WikiPage{start}
 		solution = append(solution, path)
 		return solution, 1
 	}
 	currentChecked := 1
 	var links []WikiPage
-	if (*cache)[start.Title] == nil {
+	linkstmp, _ := cache.Load(start.Title)
+	if linkstmp == nil {
 		links, _ = getWikiLinks(start, end)
 		// fmt.Printf("len before: ")
 		// fmt.Println(len(links))
 		// count++
-		(*cache)[start.Title] = links
+		cache.Store(start.Title, links)
+		// (*cache)[start.Title] = li/nks
 	} else {
-		links = (*cache)[start.Title]
+		links = linkstmp.([]WikiPage)
+		// links = (*cache)[start.Title]
 		fmt.Println(len(links), depth)
 	}
 	// links, _ := getWikiLinks(start, end)
