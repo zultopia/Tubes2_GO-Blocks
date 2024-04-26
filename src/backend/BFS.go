@@ -64,6 +64,9 @@ func BFSGo(start, end WikiPage) ([][]WikiPage, int) {
 	}()
 	for n := range newPath {
 		path := n
+		if path == nil{
+			continue
+		}
 		if path[len(path)-1].Title == end.Title {
 			solution = append(solution, path)
 		}
