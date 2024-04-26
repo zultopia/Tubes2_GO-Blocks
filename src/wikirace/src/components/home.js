@@ -184,8 +184,16 @@ function Home() {
           {isLoading ? (
             <p>Loading...</p>
           ) : result ? (
-            <div>
+            <div className='graf-wrapper'>
+              <Graf 
+                paths = {result.paths}
+              />
+              {/*
               <h2>Result</h2>
+              <p>Number of Articles Visited: {result.articlesVisited}</p>
+              <p>Number of Articles Checked: {result.articlesChecked}</p>
+              <p>Execution Time: {result.executionTime} ms</p>
+          
               {result.paths.map((path, index) => (
                 <div>
                   <h3>Path {index + 1}</h3>
@@ -199,14 +207,7 @@ function Home() {
                     ))}
                   </ul>
                 </div>
-              ))}
-
-              <p>Number of Articles Visited: {result.articlesVisited}</p>
-              <p>Number of Articles Checked: {result.articlesChecked}</p>
-              <p>Execution Time: {result.executionTime} ms</p>
-              <Graf 
-                paths = {result.paths}
-              />
+              ))} */}
             </div>
           ) : null}
         </div>

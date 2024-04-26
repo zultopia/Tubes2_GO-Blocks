@@ -1,80 +1,106 @@
 import React from 'react';
 import Graph from "react-graph-vis";
 
-function Graf({paths}) {
-    var tempNodes = []
-    var tempEdges = []
+function replaceUnderscores(title) {
+    return title.replace(/_/g, ' '); 
+}
+
+function Graf({ paths }) {
+    var tempNodes = [];
+    var tempEdges = [];
+
     paths.map((path) => {
-        var len = path.length
+        var len = path.length;
         for (var i = 0; i < len; i++) {
-            var conditional = true;
-            tempNodes.every((node, index) => {
-                if (node.id === path[i].Title) {
-                    conditional = false;
-                    return false
-                }
-                return true
-            })
-            
-            if (conditional) {
-                tempNodes.push({id: path[i].Title, label: path[i].Title, title: path[i].URL})
+            const nodeTitle = replaceUnderscores(path[i].Title); 
+
+            const nodeExists = tempNodes.some((node) => node.id === nodeTitle);
+            if (!nodeExists) {
+                tempNodes.push({
+                    id: nodeTitle,
+                    label: nodeTitle, 
+                    title: path[i].URL, 
+                });
             }
-            if (i < len-1) {
-                conditional = true;
-                tempEdges.every((edge) => {
-                    if (edge.from === path[i].Title && edge.to === path[i+1].Title) {
-                        conditional = false;
-                        return false
-                    }
-                    return true
-                })
-                if (conditional) {
-                    tempEdges.push({from: path[i].Title, to: path[i+1].Title})
+
+            if (i < len - 1) {
+                const fromNode = replaceUnderscores(path[i].Title);
+                const toNode = replaceUnderscores(path[i + 1].Title);
+
+                const edgeExists = tempEdges.some(
+                    (edge) => edge.from === fromNode && edge.to === toNode
+                );
+                if (!edgeExists) {
+                    tempEdges.push({
+                        from: fromNode,
+                        to: toNode,
+                        arrows: 'to', 
+                        color: { color: '#848484', highlight: '#848484' },
+                    });
                 }
             }
         }
-    })
+    });
+
+    // Algoritma pewarnaan berdasarkan indeks
+    const colors = [
+        "#e6194b",
+        "#3cb44b",
+        "#ffe119",
+        "#4363d8",
+        "#f58231",
+        "#911eb4",
+        "#42d4f4",
+        "#f032e6",
+        "#a9a9a9",
+        "#469990",
+    ]; 
+    const nodeColors = {};
+    const colorByIndex = {}; 
+    
+    paths.forEach((path) => {
+        for (let i = 0; i < path.length; i++) {
+            const nodeTitle = replaceUnderscores(path[i].Title); 
+
+            if (!colorByIndex[i]) {
+                colorByIndex[i] = colors[i % colors.length]; 
+            }
+
+            nodeColors[nodeTitle] = colorByIndex[i]; 
+        }
+    });
+
+    tempNodes.forEach((node) => {
+        node.color = { background: nodeColors[node.id] };
+    });
+
     const graph = {
-      nodes: tempNodes,
-      edges: tempEdges
+        nodes: tempNodes,
+        edges: tempEdges,
     };
-  
+
     const options = {
         nodes: {
-            shape: "dot",
+            shape: 'dot',
             size: 16,
-          },
-          physics: {
+        },
+        edges: {
+            arrows: {
+                to: true, 
+            },
+            color: { color: '#848484', highlight: '#848484' }, 
+        },
+        physics: {
             enabled: true,
-        //     forceAtlas2Based: {
-        //       gravitationalConstant: -26,
-        //       centralGravity: 0.005,
-        //       springLength: 230,
-        //       springConstant: 0.18,
-        //     },
-        //     maxVelocity: 146,
-        //     solver: "forceAtlas2Based",
-        //     timestep: 0.35,
-        //     stabilization: { iterations: 150 },
-          },
-          interaction: {
+        },
+        interaction: {
             navigationButtons: true,
-            zoomView: true, 
+            zoomView: true,
             hover: true,
-          },
+        },
     };
-  
-    // const events = {
-    //   select: function(event) {
-    //     var { nodes, edges } = event;
-    //   }
-    // };
-    return (
-      <Graph
-        graph={graph}
-        options={options}
-      />
-    );
-  }
 
-  export default Graf;
+    return <Graph graph={graph} options={options} />;
+}
+
+export default Graf;
