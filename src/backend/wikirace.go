@@ -96,9 +96,9 @@ func main() {
 
 	switch algorithm {
 	case "BFS":
-		multipath, nodesChecked = BFSGo(start, end)
+		multipath, nodesChecked = BFSGo(start, end, true)
 	case "IDS":
-		multipath, nodesChecked = IDS(start, end, 20) // Maximum depth for IDS
+		multipath, nodesChecked = IDS(start, end, 10, true) // Maximum depth for IDS
 	default:
 		getWikiLinks(start, end)
 		fmt.Println("Invalid algorithm. Please use 'BFS' or 'IDS'.")

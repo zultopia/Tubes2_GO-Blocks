@@ -7,7 +7,7 @@ import (
 )
 
 var wg = sync.WaitGroup{}
-var max_go int = 200
+var max_go int = 150
 var guard = make(chan struct{}, max_go)
 var solution = make([][]WikiPage, 0)
 var m = sync.RWMutex{}
@@ -15,7 +15,7 @@ var m = sync.RWMutex{}
 // var counter = 0
 var level = 0
 
-func BFSGo(start, end WikiPage) ([][]WikiPage, int) {
+func BFSGo(start, end WikiPage, multi bool) ([][]WikiPage, int) {
 	solution = make([][]WikiPage, 0)
 	if start.Title == end.Title {
 		return [][]WikiPage{{end}}, 1
@@ -77,6 +77,9 @@ func BFSGo(start, end WikiPage) ([][]WikiPage, int) {
 		if path[len(path)-1].Title == end.Title {
 			fmt.Println(path)
 			solution = append(solution, path)
+			if !multi{
+				return solution, syncMapLen((&visited))
+			}
 		}
 	}
 

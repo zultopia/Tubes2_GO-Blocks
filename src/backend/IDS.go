@@ -5,7 +5,7 @@ import (
 	"sync"
 )
 
-func IDS(start, end WikiPage, maxDepth int) ([][]WikiPage, int) {
+func IDS(start, end WikiPage, maxDepth int, multi bool) ([][]WikiPage, int) {
 	nodesChecked := 0
 	var solution [][]WikiPage
 	var cache sync.Map
@@ -19,7 +19,11 @@ func IDS(start, end WikiPage, maxDepth int) ([][]WikiPage, int) {
 			}
 			return nil, nodesChecked */
 		var nodes int
-		solution, nodes = DLS(start, end, depth, &cache)
+		if (multi) {
+			solution, nodes = DLSmulti(start, end, depth, &cache)
+		} else {
+			solution, nodes = DLSsingle(start, end, depth, &cache)
+		}
 		nodesChecked += nodes
 		if len(solution) > 0 {
 			break
@@ -31,7 +35,7 @@ func IDS(start, end WikiPage, maxDepth int) ([][]WikiPage, int) {
 // DLS up to a given depth
 // var count = 0
 
-func DLS(start, end WikiPage, depth int, cache *sync.Map) ([][]WikiPage, int) {
+func DLSmulti(start, end WikiPage, depth int, cache *sync.Map) ([][]WikiPage, int) {
 	var max_go int = 15
 	var guard = make(chan struct{}, max_go)
 	var wg = sync.WaitGroup{}
@@ -40,10 +44,6 @@ func DLS(start, end WikiPage, depth int, cache *sync.Map) ([][]WikiPage, int) {
 		return nil, 1
 	}
 	if start.Title == end.Title {
-		/*
-			return []WikiPage{start}, 1
-		*/
-		fmt.Println("ketemu")
 		path := []WikiPage{start}
 		solution = append(solution, path)
 		return solution, 1
@@ -53,40 +53,16 @@ func DLS(start, end WikiPage, depth int, cache *sync.Map) ([][]WikiPage, int) {
 	linkstmp, _ := cache.Load(start.Title)
 	if linkstmp == nil {
 		links, _ = getWikiLinks(start, end)
-		// fmt.Printf("len before: ")
-		// fmt.Println(len(links))
-		// count++
 		cache.Store(start.Title, links)
-		// (*cache)[start.Title] = li/nks
 	} else {
 		links = linkstmp.([]WikiPage)
-		// links = (*cache)[start.Title]
 		fmt.Println(len(links), depth)
 	}
-	// links, _ := getWikiLinks(start, end)
-	// fmt.Printf("len after: ")
-	// fmt.Println(len(links))
-	// fmt.Printf("depth: %d\n", depth)
 	for _, link := range links {
-		// if link.Title == "Archimedes" {
-		// 	fmt.Println(i)
-		// 	fmt.Println(link.Title)
-		// }
-		/*
-				path, nodesChecked := DLS(link, end, depth-1, cache, solution)
-				currentChecked += nodesChecked
-				// fmt.Println(path)
-				if path != nil {
-					return append([]WikiPage{start}, path...), currentChecked
-				}
-			}
-			// fmt.Println(count)
-			return nil, currentChecked */
-		// fmt.Println(link)
 		wg.Add(1)
 		guard <- struct{}{}
 		go func() {
-			curSolution, nodesChecked := DLS(link, end, depth-1, cache)
+			curSolution, nodesChecked := DLSmulti(link, end, depth-1, cache)
 			currentChecked += nodesChecked
 			if curSolution != nil {
 				solution = append(solution, curSolution...)
@@ -100,5 +76,48 @@ func DLS(start, end WikiPage, depth int, cache *sync.Map) ([][]WikiPage, int) {
 	for i, path := range solution {
 		solution[i] = append([]WikiPage{start}, path...)
 	}
+	return solution, currentChecked
+}
+
+func DLSsingle(start, end WikiPage, depth int, cache *sync.Map) ([][]WikiPage, int) {
+	var max_go int = 15
+	var guard = make(chan struct{}, max_go)
+	var wg = sync.WaitGroup{}
+	solution := make([][]WikiPage, 0)
+	if depth == 0 && start.Title != end.Title {
+		return nil, 1
+	}
+	if start.Title == end.Title {
+		path := []WikiPage{start}
+		solution = append(solution, path)
+		return solution, 1
+	}
+	currentChecked := 1
+	var links []WikiPage
+	linkstmp, _ := cache.Load(start.Title)
+	if linkstmp == nil {
+		links, _ = getWikiLinks(start, end)
+		cache.Store(start.Title, links)
+	} else {
+		links = linkstmp.([]WikiPage)
+	}
+	for _, link := range links {
+		wg.Add(1)
+		guard <- struct{}{}
+		go func() {
+			curSolution, nodesChecked := DLSsingle(link, end, depth-1, cache)
+			currentChecked += nodesChecked
+			if curSolution != nil {
+				solution = append(solution, curSolution...)
+			}
+			<-guard
+			defer wg.Done()
+		}()
+		if (len(solution) != 0){
+			solution[0] = append([]WikiPage{start}, solution[0]...)
+			return solution, currentChecked
+		}
+	}
+	wg.Wait()
 	return solution, currentChecked
 }

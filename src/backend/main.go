@@ -52,7 +52,7 @@ func BFShandler(c *gin.Context) {
 	targetPage := WikiPage{Title: request.TargetTitle, URL: request.TargetURL}
 	startTime := time.Now()
 	fmt.Println(request)
-	path, articlesVisited := BFSGo(startPage, targetPage)
+	path, articlesVisited := BFSGo(startPage, targetPage, true)
 	fmt.Println(path)
 	endTime := time.Now()
 	elapsedTime := endTime.Sub(startTime)
@@ -73,7 +73,7 @@ func IDShandler(c *gin.Context) {
 	targetPage := WikiPage{Title: request.TargetTitle, URL: request.TargetURL}
 	startTime := time.Now()
 	fmt.Println(request)
-	path, articlesVisited := IDS(startPage, targetPage, 10)
+	path, articlesVisited := IDS(startPage, targetPage, 10, true)
 	fmt.Println(path)
 	endTime := time.Now()
 	elapsedTime := endTime.Sub(startTime)
