@@ -21,6 +21,7 @@ import Graf from './graph'
 import Switch from './switch';
 import one from './assets/one.png';
 import many from './assets/many.png';
+import kachow from './assets/kachow.gif';
 
 function Home() {
   const [startArticle, setStartArticle] = useState('');
@@ -203,6 +204,7 @@ function Home() {
             {'Loading...'.split('').map((char, index) => (
               <span key={index} className="loading-text">{char}</span>
             ))}
+            <img src={kachow} alt="KACHOW"/>
           </div>
             ) : result ? (
             <div className='graf-wrapper'>
