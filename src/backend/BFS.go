@@ -1,8 +1,11 @@
 package main
 import (
 	"fmt"
+	// "runtime/trace"
 	"sync"
 	"time"
+
+	"github.com/orcaman/concurrent-map"
 )
 var wg = sync.WaitGroup{}
 var max_go int = 100
@@ -15,11 +18,13 @@ func BFSGo(start, end WikiPage) ([][]WikiPage, int) {
 		return [][]WikiPage{{end}}, 1
 	}
 	queue := make([][]WikiPage, 0)
-	var visited sync.Map
+	// var visited sync.Map
+	visited2 := cmap.New()
 	queue = append(queue, []WikiPage{start})
 	newPath := make(chan []WikiPage)
 	// visited := make(map[string]bool)
-	visited.Store(start.Title, true)
+	// visited.Store(start.Title, true)
+	visited2.Set(start.Title, true)
 	go func() {
 		defer close(newPath)
 		for len(queue) > 0 {
@@ -31,7 +36,8 @@ func BFSGo(start, end WikiPage) ([][]WikiPage, int) {
 				queue = queue[1:]
 				wg.Add(1)
 				guard <- struct{}{}
-				go BFSHelper(curpath, end, newPath, &visited, &tmpqueue)
+				go BFSHelper(curpath, end, newPath, &visited2, &tmpqueue)
+				// counter++
 				// m.Lock()
 				// tmpqueue = append(tmpqueue, <-newPath)
 				// m.Unlock()
@@ -53,7 +59,8 @@ func BFSGo(start, end WikiPage) ([][]WikiPage, int) {
 				break
 			}
 		}
-		visited.Store(end, true)
+		// visited.Store(end, true)
+		visited2.Set(end.Title, true)
 		// fmt.Println("TESTES")
 	}()
 	for n := range newPath {
@@ -66,16 +73,20 @@ func BFSGo(start, end WikiPage) ([][]WikiPage, int) {
 		// 	fmt.Println(path)
 		// }
 		if path[len(path)-1].Title == end.Title {
-			// return path, syncMapLen(&visited)
 			// fmt.Println(path)
 			solution = append(solution, path)
+			if !multi{
+				// return solution, syncMapLen((&visited))
+				return solution, visited2.Count()
+			}
 		}
 	}
 	// if solution tidak kosng, ....
 
-	return solution, syncMapLen(&visited)
+	// return solution, syncMapLen(&visited)
+	return solution, visited2.Count()
 }
-func BFSHelper(path []WikiPage, end WikiPage, newPath chan<- []WikiPage, visited *sync.Map, tmpqueue *[][]WikiPage) {
+func BFSHelper(path []WikiPage, end WikiPage, newPath chan<- []WikiPage, visited2 *cmap.ConcurrentMap, tmpqueue *[][]WikiPage) {
 	defer wg.Done()
 	// time.Sleep(time.Second)
 	if len(path) == 0 {
@@ -93,11 +104,13 @@ func BFSHelper(path []WikiPage, end WikiPage, newPath chan<- []WikiPage, visited
 	}
 	// fmt.Println(1)
 	for _, link := range links {
-		_, ok := visited.Load(link.Title)
+		// _, ok := visited.Load(link.Title)
+		_, ok := visited2.Get(link.Title)
 		if !ok {
 			// fmt.Println(link.Title)
-			if link.Title != end.Title{
-				visited.Store(link.Title, true)
+			if link.Title != end.Title {
+				// visited.Store(link.Title, true)
+				visited2.Set(link.Title, true)
 			}
 			newPathtmp := append([]WikiPage{}, path...)
 			newPathtmp = append(newPathtmp, link)
