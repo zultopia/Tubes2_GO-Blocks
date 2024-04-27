@@ -63,6 +63,12 @@ Algoritma IDS kami implementasikan dengan menggunakan algoritma DLS dengan maxim
 
 Setiap link yang didapatkan akan dicek apakah sudah sesuai dengan artikel tujuan, jika belum maka akan dengan memanggil fungsi DLS secara rekursif dengan start artikel tersebut dan tujuan tetap sama hingga menyentuh limit depth atau artikel ditemukan. Jika pada tiap path DLS tidak ditemukan solusinya sampai depth maximum, maka akan dilakukan pencarian ulang DLS dengan depth maximum bertambah 1 pada iterasi IDS. Jika dilakukan pencarian single solution, maka proses pencarian akan dihentikan ketika pertama kali ditemukan solution. Jika dilakukan pencarian multiple solution, maka proses pencarian akan dilanjutkan iterasi IDS tersebut hingga selesai untuk mendapatkan solusi lainnya. 
 
+## Requirements
+
+1. golang
+2. npm
+3. yarn
+
 ## Setup and Installation
 
 1. Clone repo
