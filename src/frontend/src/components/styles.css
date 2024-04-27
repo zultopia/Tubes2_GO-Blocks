@@ -25,49 +25,49 @@
     width: 200px;
     position: relative;
     top: -50px; 
-    left: -250px; 
+    left: -100px; 
 }  
 
 .goblocks-image {
     width: 200px; 
     position: relative;
     top: -40px;
-    left: 600px; 
+    left: 750px; 
 }  
 
 .start-image {
     width: 110px; 
     position: relative;
     top: 70px; 
-    left: -850px; 
+    left: -695px; 
 } 
 
 .end-image {
     width: 72px; 
     position: relative;
     top: 70px; 
-    right: 600px;
-} 
+    right: 450px;
+}
 
 .search-image {
     width: 130px; 
     position: relative;
     top: 70px; 
-    right: 400px; 
+    right: 580px; 
 } 
 
 .one-image {
     width: 150px; 
-    position: absolute;
-    top: 253px; 
-    right: 360px; 
+    position: relative;
+    top: 118px; 
+    right: 80px; 
 } 
 
 .many-image {
     width: 150px; 
-    position: absolute;
-    top: 253px; 
-    right: 120px; 
+    position: relative;
+    top: 118px; 
+    right: -20px; 
 } 
 
 .switch {
@@ -75,7 +75,7 @@
     display: inline-block;
     width: 60px;
     height: 34px;
-    left: 930px;
+    left: 1080px;
     bottom : 140px;
 }
 
@@ -125,7 +125,7 @@
     height: 60px;
     position: relative;
     top: 60px;
-    left: 140px;
+    left: 300px;
     display: flex;
     flex-direction: column;
     justify-content: center;
@@ -148,7 +148,7 @@
     height: 80px;
     position: relative;
     top: -200px;
-    right: -610px;
+    right: -730px;
     display: flex;
     flex-direction: column;
     justify-content: center;
@@ -164,18 +164,18 @@
 }
 
 .bfs-text {
-    width: 120px; 
+    width: 130px; 
     position: relative;
-    top: 520px; 
-    left: -550px; 
+    top: 530px; 
+    left: -390px; 
 } 
 
 .ids-text {
     width: 120px; 
     position: relative;
     top: 530px; 
-    left: -350px; 
-} 
+    left: -180px; 
+}
 
 .nav {
     display: flex;
@@ -300,7 +300,7 @@ html, body {
     height: 80px;
     position: relative;
     top: 380px;
-    left: -100px;
+    left: 50px;
     display: flex;
     flex-direction: column;
     justify-content: center;
@@ -324,7 +324,7 @@ html, body {
     height: 80px;
     position: relative;
     top: 307px;
-    left: 200px;
+    left: 370px;
     display: flex;
     flex-direction: column;
     justify-content: center;

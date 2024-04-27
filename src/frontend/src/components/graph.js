@@ -9,7 +9,7 @@ function Graf({ paths }) {
     var tempNodes = [];
     var tempEdges = [];
 
-    paths.map((path) => {
+    paths.forEach((path) => {
         var len = path.length;
         for (var i = 0; i < len; i++) {
             const nodeTitle = replaceUnderscores(path[i].Title); 
