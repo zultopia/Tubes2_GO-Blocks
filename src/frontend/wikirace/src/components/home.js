@@ -199,6 +199,29 @@ function Home() {
             </div>
           ) : null}
         </div>
+
+        {/* Informasi Pencarian */}
+        <div className="info-container">
+        {isLoading ? (
+            <p>Loading...</p>
+          ) : result ? (
+            <div>
+              <h2>Result</h2>
+              <ul>
+                {result.path.map((url, index) => (
+                  <li key={index}>
+                    <a href={url} target="_blank" rel="noopener noreferrer">
+                      {url}
+                    </a>
+                  </li>
+                ))}
+              </ul>
+              <p>Number of Articles Visited: {result.articlesVisited}</p>
+              <p>Number of Articles Checked: {result.articlesChecked}</p>
+              <p>Execution Time: {result.executionTime} ms</p>
+            </div>
+          ) : null}
+        </div>
       </div>
     </div>
   );

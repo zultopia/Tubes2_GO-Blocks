@@ -18,6 +18,9 @@ import switchs from './assets/switch.png';
 import WikipediaAutosuggest from './wikipediaautosuggest';
 import WikipediaAutosuggest2 from './wikipediaautosuggest2';
 import Graf from './graph'
+import Switch from './switch';
+import one from './assets/one.png';
+import many from './assets/many.png';
 
 function Home() {
   const [startArticle, setStartArticle] = useState('');
@@ -83,6 +86,14 @@ function Home() {
     setIsEndAutocompleteOpen(true); 
   };
 
+  const handleSwitchToggle = (isOn) => {
+    if (isOn) {
+      console.log('Algoritma one solution');
+    } else {
+      console.log('Algoritma many solution');
+    }
+  };
+  
   const handleSubmit = async (e) => {
     e.preventDefault();
     setIsLoading(true);
@@ -128,6 +139,8 @@ function Home() {
         <img src={idsSrc} alt="IDS Title" className="ids-text" /> 
         <img src={start} alt="START" className="start-image" />
         <img src={end} alt="END" className="end-image" />
+        <img src={one} alt="ONE" className="one-image" />
+        <img src={many} alt="MANY" className="many-image" />
         <img src={search} alt="SEARCH" className="search-image" />
         <button className="switch-button">
           <img src={switchs} alt="Switch" onClick={handleSwitch} />
@@ -138,6 +151,7 @@ function Home() {
         <button className="cruz-button" onClick={handleCruzClick}>
           <img src={cruz} alt="Button 2" />
         </button>
+        <Switch onToggle={handleSwitchToggle} />
         <button className="piston-button" onClick={handleSubmit}>
             <img src={piston} alt="Piston" />
           </button>
@@ -182,35 +196,51 @@ function Home() {
         {/* Hasil Pencarian */}
         <div className="result-container">
           {isLoading ? (
-            <p>Loading...</p>
-          ) : result ? (
+          <div>
+            {'Loading...'.split('').map((char, index) => (
+              <span key={index} className="loading-text">{char}</span>
+            ))}
+          </div>
+            ) : result ? (
             <div className='graf-wrapper'>
               <Graf 
                 paths = {result.paths}
               />
-              {/*
+            </div>
+          ) : null}
+        </div>
+
+        {/* Informasi Pencarian */}
+        <div className="info-container">
+          {isLoading ? (
+            <div>
+              {'Loading...'.split('').map((char, index) => (
+                <span key={index} className="loading-text">{char}</span>
+              ))}
+            </div>
+          ) : result ? (
+            <div className="result-content"> 
               <h2>Result</h2>
-              <p>Number of Articles Visited: {result.articlesVisited}</p>
-              <p>Number of Articles Checked: {result.articlesChecked}</p>
+              <p>Jumlah Artikel yang diperiksa: {result.articlesVisited}</p>
+              <p>Jumlah Artikel yang dilalui: {result.paths.length === 0 ? "-" : result.paths[0].length}</p>
               <p>Execution Time: {result.executionTime} ms</p>
-          
               {result.paths.map((path, index) => (
-                <div>
-                  <h3>Path {index + 1}</h3>
+                <div key={index}>
+                <h3>Path {index + 1}</h3>
                   <ul>
-                    {path.map((page, index) => (
-                      <li key={index}>
+                    {path.map((page, pageIndex) => (
+                      <li key={pageIndex}>
                         <a href={page.URL} target="_blank" rel="noopener noreferrer">
                           {page.Title}
                         </a>
                       </li>
                     ))}
-                  </ul>
-                </div>
-              ))} */}
+                </ul>
+              </div>
+            ))}
             </div>
           ) : null}
-        </div>
+          </div>
       </div>
     </div>
   );
