@@ -7,13 +7,16 @@ import (
 )
 
 var wg = sync.WaitGroup{}
-var max_go int = 20
+var max_go int = 150
 var guard = make(chan struct{}, max_go)
 var solution = make([][]WikiPage, 0)
+var m = sync.RWMutex{}
 
-// var level = 1
+// var counter = 0
+var level = 0
 
-func BFSGo(start, end WikiPage) ([][]WikiPage, int) {
+func BFSGo(start, end WikiPage, multi bool) ([][]WikiPage, int) {
+	solution = make([][]WikiPage, 0)
 	if start.Title == end.Title {
 		return [][]WikiPage{{end}}, 1
 	}
@@ -30,11 +33,17 @@ func BFSGo(start, end WikiPage) ([][]WikiPage, int) {
 			tmpqueue := make([][]WikiPage, 0)
 			// a := len(queue)
 			for range queue {
+				// if counter > 100{
+				// 	time.Sleep(time.Second*5)
+				// 	counter = 0
+				// 	fmt.Println(counter)
+				// }
 				curpath := queue[0]
 				queue = queue[1:]
 				wg.Add(1)
 				guard <- struct{}{}
 				go BFSHelper(curpath, end, newPath, &visited, &tmpqueue)
+				// counter++
 				// m.Lock()
 				// tmpqueue = append(tmpqueue, <-newPath)
 				// m.Unlock()
@@ -45,10 +54,10 @@ func BFSGo(start, end WikiPage) ([][]WikiPage, int) {
 				// time.Sleep(time.Millisecond * 1)
 			}
 			wg.Wait()
-			// level++
+			level++
 			// fmt.Println(len(queue))
 			queue = tmpqueue
-			// fmt.Println("Masuk Sini! level ", level)
+			fmt.Println("Masuk Sini! level ", level)
 			// fmt.Println(len(tmpqueue[0]))
 			// fmt.Println(queue)
 			// fmt.Println()
@@ -62,20 +71,17 @@ func BFSGo(start, end WikiPage) ([][]WikiPage, int) {
 	}()
 	for n := range newPath {
 		path := n
-		// fmt.Println(len(path))
-		if len(path) == 0 {
-			return nil, syncMapLen(&visited)
+		if path == nil {
+			continue
 		}
-		// if path[len(path)-1].Title == "Elon_Musk" {
-		// 	fmt.Println(path)
-		// }
 		if path[len(path)-1].Title == end.Title {
-			// return path, syncMapLen(&visited)
-			// fmt.Println(path)
+			fmt.Println(path)
 			solution = append(solution, path)
+			if !multi{
+				return solution, syncMapLen((&visited))
+			}
 		}
 	}
-	// if solution tidak kosng, ....
 
 	return solution, syncMapLen(&visited)
 }
@@ -88,9 +94,7 @@ func BFSHelper(path []WikiPage, end WikiPage, newPath chan<- []WikiPage, visited
 	}
 	lastPage := path[len(path)-1]
 	links, err := getWikiLinks(lastPage, end)
-	// fmt.Println(len(links))
 	if err != nil {
-		// fmt.Println(path)
 		newPath <- nil
 		fmt.Println("error")
 		return

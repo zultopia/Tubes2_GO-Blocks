@@ -1,11 +1,20 @@
 package main
 
 import (
+	"fmt"
 	"net/http"
+	"time"
 
 	"github.com/gin-gonic/contrib/static"
 	"github.com/gin-gonic/gin"
 )
+
+type Request struct {
+	StartTitle  string `json:"startTitle" binding:"required"`
+	StartURL    string `json:"startURL" binding:"required"`
+	TargetTitle string `json:"targetTitle" binding:"required"`
+	TargetURL   string `json:"targetURL" binding:"required"`
+}
 
 func main() {
 	// Set the router as the default one shipped with Gin
@@ -26,9 +35,9 @@ func main() {
 			})
 		})
 	}
-	// Our API will consit of just two routes
-	api.GET("/BFS", BFShandler)
-	api.GET("IDS", IDShandler)
+	// Our API will consist of just two routes
+	api.POST("/BFS", BFShandler)
+	api.POST("/IDS", IDShandler)
 
 	// Start and run the server
 	router.Run(":3000")
@@ -37,13 +46,41 @@ func main() {
 // BFShandler Receives
 func BFShandler(c *gin.Context) {
 	c.Header("Content-Type", "application/json")
-	c.JSON(http.StatusOK, "TES")
+	request := Request{}
+	c.BindJSON(&request)
+	startPage := WikiPage{Title: request.StartTitle, URL: request.StartURL}
+	targetPage := WikiPage{Title: request.TargetTitle, URL: request.TargetURL}
+	startTime := time.Now()
+	fmt.Println(request)
+	path, articlesVisited := BFSGo(startPage, targetPage, true)
+	fmt.Println(path)
+	endTime := time.Now()
+	elapsedTime := endTime.Sub(startTime)
+
+	c.JSON(http.StatusOK, gin.H{
+		"paths":           path,
+		"articlesVisited": articlesVisited,
+		"executionTime":   elapsedTime.Milliseconds(),
+	})
 }
 
 // LikeJoke increments the likes of a particular joke Item
 func IDShandler(c *gin.Context) {
 	c.Header("Content-Type", "application/json")
+	request := Request{}
+	c.BindJSON(&request)
+	startPage := WikiPage{Title: request.StartTitle, URL: request.StartURL}
+	targetPage := WikiPage{Title: request.TargetTitle, URL: request.TargetURL}
+	startTime := time.Now()
+	fmt.Println(request)
+	path, articlesVisited := IDS(startPage, targetPage, 10, true)
+	fmt.Println(path)
+	endTime := time.Now()
+	elapsedTime := endTime.Sub(startTime)
+
 	c.JSON(http.StatusOK, gin.H{
-		"message": "LikeJoke handler not implemented yet",
+		"paths":           path,
+		"articlesVisited": articlesVisited,
+		"executionTime":   elapsedTime.Milliseconds(),
 	})
 }

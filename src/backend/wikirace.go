@@ -3,12 +3,12 @@ package main
 import (
 	"fmt"
 	"os"
-	"sync"
+
+	// "sync"
 	"time"
 )
 
 // WikiPage represents a Wikipedia page with its title and URL
-
 
 // getWikiLinks without cache
 // func getWikiLinks(page WikiPage) []WikiPage {
@@ -40,8 +40,6 @@ import (
 // 		}
 // 	}
 // }
-
-
 
 // BFS Algorithm
 func BFS(start, end WikiPage) ([]WikiPage, int) {
@@ -75,12 +73,11 @@ func BFS(start, end WikiPage) ([]WikiPage, int) {
 	return nil, len(visited)
 }
 
-var m = sync.RWMutex{}
+// var m = sync.RWMutex{}
 
 // var m2 = sync.RWMutex{}
 
 // IDS Algorithm
-
 
 func main() {
 	if len(os.Args) != 4 {
@@ -99,10 +96,11 @@ func main() {
 
 	switch algorithm {
 	case "BFS":
-		multipath, nodesChecked = BFSGo(start, end)
+		multipath, nodesChecked = BFSGo(start, end, true)
 	case "IDS":
-		multipath, nodesChecked = IDS(start, end, 20) // Maximum depth for IDS
+		multipath, nodesChecked = IDS(start, end, 10, true) // Maximum depth for IDS
 	default:
+		getWikiLinks(start, end)
 		fmt.Println("Invalid algorithm. Please use 'BFS' or 'IDS'.")
 		return
 	}
@@ -112,7 +110,7 @@ func main() {
 	fmt.Printf("Number of articles checked: %d\n", nodesChecked)
 	fmt.Println(multipath)
 	// fmt.Println(len(multipath))
-	if path != nil || multipath != nil{
+	if path != nil || multipath != nil {
 		fmt.Printf("Number of articles checked: %d\n", nodesChecked)
 		fmt.Printf("Number of articles traversed: %d\n", len(multipath[0]))
 		// fmt.Println(path)
