@@ -81,6 +81,13 @@ yarn build
 cd ../backend
 go run .
 ```
+
+4. Open in Browser
+
+```
+http://localhost:3000/
+```
+
 <!-- LICENSE -->
 ## Licensing
 
