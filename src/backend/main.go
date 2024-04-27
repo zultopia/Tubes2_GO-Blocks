@@ -22,10 +22,10 @@ func main() {
 	router := gin.Default()
 
 	// Serve frontend static files
-	router.Use(static.Serve("/", static.LocalFile("../wikirace/build", true)))
-	router.Use(static.Serve("/home", static.LocalFile("../wikirace/build", true)))
-	router.Use(static.Serve("/about", static.LocalFile("../wikirace/build", true)))
-	router.Use(static.Serve("/howtouse", static.LocalFile("../wikirace/build", true)))
+	router.Use(static.Serve("/", static.LocalFile("../frontend/build", true)))
+	router.Use(static.Serve("/home", static.LocalFile("../frontend/build", true)))
+	router.Use(static.Serve("/about", static.LocalFile("../frontend/build", true)))
+	router.Use(static.Serve("/howtouse", static.LocalFile("../frontend/build", true)))
 
 	// Setup route group for the API
 	api := router.Group("/api")
