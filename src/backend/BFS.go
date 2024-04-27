@@ -29,9 +29,7 @@ func BFSGo(start, end WikiPage, multi bool) ([][]WikiPage, int) {
 		defer close(newPath)
 		for len(queue) > 0 {
 			tmpqueue := make([][]WikiPage, 0)
-			for range queue {
-				curpath := queue[0]
-				queue = queue[1:]
+			for _, curpath := range queue {
 				wg.Add(1)
 				guard <- struct{}{}
 				go BFSHelper(curpath, end, newPath, &visited, &tmpqueue)
