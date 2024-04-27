@@ -1,7 +1,6 @@
 package main
 
 import (
-	"fmt"
 	"sync"
 )
 
@@ -10,16 +9,8 @@ func IDS(start, end WikiPage, maxDepth int, multi bool) ([][]WikiPage, int) {
 	var solution [][]WikiPage
 	var cache sync.Map
 	for depth := 1; depth <= maxDepth; depth++ {
-		/*
-				path, nodesChecked := DLS(start, end, depth, &cache, &solution)
-				// fmt.Println(path)
-				if path != nil {
-					return path, nodesChecked
-				}
-			}
-			return nil, nodesChecked */
 		var nodes int
-		if (multi) {
+		if multi {
 			solution, nodes = DLSmulti(start, end, depth, &cache)
 		} else {
 			solution, nodes = DLSsingle(start, end, depth, &cache)
@@ -33,7 +24,6 @@ func IDS(start, end WikiPage, maxDepth int, multi bool) ([][]WikiPage, int) {
 }
 
 // DLS up to a given depth
-// var count = 0
 
 func DLSmulti(start, end WikiPage, depth int, cache *sync.Map) ([][]WikiPage, int) {
 	var max_go int = 15
@@ -56,7 +46,6 @@ func DLSmulti(start, end WikiPage, depth int, cache *sync.Map) ([][]WikiPage, in
 		cache.Store(start.Title, links)
 	} else {
 		links = linkstmp.([]WikiPage)
-		fmt.Println(len(links), depth)
 	}
 	for _, link := range links {
 		wg.Add(1)
@@ -113,7 +102,7 @@ func DLSsingle(start, end WikiPage, depth int, cache *sync.Map) ([][]WikiPage, i
 			<-guard
 			defer wg.Done()
 		}()
-		if (len(solution) != 0){
+		if len(solution) != 0 {
 			solution[0] = append([]WikiPage{start}, solution[0]...)
 			return solution, currentChecked
 		}

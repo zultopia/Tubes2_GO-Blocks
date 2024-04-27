@@ -14,6 +14,7 @@ type Request struct {
 	StartURL    string `json:"startURL" binding:"required"`
 	TargetTitle string `json:"targetTitle" binding:"required"`
 	TargetURL   string `json:"targetURL" binding:"required"`
+	Multi       string `json:"multi" binding:"required"`
 }
 
 func main() {
@@ -51,8 +52,14 @@ func BFShandler(c *gin.Context) {
 	startPage := WikiPage{Title: request.StartTitle, URL: request.StartURL}
 	targetPage := WikiPage{Title: request.TargetTitle, URL: request.TargetURL}
 	startTime := time.Now()
+	var multi bool
+	if request.Multi == "1" {
+		multi = true
+	} else {
+		multi = false
+	}
 	fmt.Println(request)
-	path, articlesVisited := BFSGo(startPage, targetPage, true)
+	path, articlesVisited := BFSGo(startPage, targetPage, multi)
 	fmt.Println(path)
 	endTime := time.Now()
 	elapsedTime := endTime.Sub(startTime)
@@ -72,8 +79,14 @@ func IDShandler(c *gin.Context) {
 	startPage := WikiPage{Title: request.StartTitle, URL: request.StartURL}
 	targetPage := WikiPage{Title: request.TargetTitle, URL: request.TargetURL}
 	startTime := time.Now()
+	var multi bool
+	if request.Multi == "1" {
+		multi = true
+	} else {
+		multi = false
+	}
 	fmt.Println(request)
-	path, articlesVisited := IDS(startPage, targetPage, 10, true)
+	path, articlesVisited := IDS(startPage, targetPage, 10, multi)
 	fmt.Println(path)
 	endTime := time.Now()
 	elapsedTime := endTime.Sub(startTime)

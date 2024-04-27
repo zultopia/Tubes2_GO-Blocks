@@ -97,6 +97,7 @@ function Graf({ paths }) {
             navigationButtons: true,
             zoomView: true,
             hover: true,
+            zoomSpeed: 0.4,
         },
     };
 

@@ -12,11 +12,11 @@ var guard = make(chan struct{}, max_go)
 var solution = make([][]WikiPage, 0)
 var m = sync.RWMutex{}
 
-// var counter = 0
-var level = 0
-
 func BFSGo(start, end WikiPage, multi bool) ([][]WikiPage, int) {
 	solution = make([][]WikiPage, 0)
+	wg = sync.WaitGroup{}
+	guard = make(chan struct{}, max_go)
+	m = sync.RWMutex{}
 	if start.Title == end.Title {
 		return [][]WikiPage{{end}}, 1
 	}
@@ -24,50 +24,26 @@ func BFSGo(start, end WikiPage, multi bool) ([][]WikiPage, int) {
 	var visited sync.Map
 	queue = append(queue, []WikiPage{start})
 	newPath := make(chan []WikiPage)
-	// visited := make(map[string]bool)
 	visited.Store(start.Title, true)
 	go func() {
 		defer close(newPath)
 		for len(queue) > 0 {
-			// fmt.Println(solF)
 			tmpqueue := make([][]WikiPage, 0)
-			// a := len(queue)
 			for range queue {
-				// if counter > 100{
-				// 	time.Sleep(time.Second*5)
-				// 	counter = 0
-				// 	fmt.Println(counter)
-				// }
 				curpath := queue[0]
 				queue = queue[1:]
 				wg.Add(1)
 				guard <- struct{}{}
 				go BFSHelper(curpath, end, newPath, &visited, &tmpqueue)
-				// counter++
-				// m.Lock()
-				// tmpqueue = append(tmpqueue, <-newPath)
-				// m.Unlock()
-				// time.Sleep(5*time.Millisecond)
-				// }
-				// fmt.Println("Wait 5 sec")
-				// time.Sleep(5 * time.Second)
-				// time.Sleep(time.Millisecond * 1)
 			}
 			wg.Wait()
-			level++
-			// fmt.Println(len(queue))
 			queue = tmpqueue
-			fmt.Println("Masuk Sini! level ", level)
-			// fmt.Println(len(tmpqueue[0]))
-			// fmt.Println(queue)
-			// fmt.Println()
 			time.Sleep(time.Second * 2)
 			if len(solution) > 0 {
 				break
 			}
 		}
 		visited.Store(end, true)
-		// fmt.Println("TESTES")
 	}()
 	for n := range newPath {
 		path := n
@@ -77,7 +53,7 @@ func BFSGo(start, end WikiPage, multi bool) ([][]WikiPage, int) {
 		if path[len(path)-1].Title == end.Title {
 			fmt.Println(path)
 			solution = append(solution, path)
-			if !multi{
+			if !multi {
 				return solution, syncMapLen((&visited))
 			}
 		}
@@ -87,7 +63,6 @@ func BFSGo(start, end WikiPage, multi bool) ([][]WikiPage, int) {
 }
 func BFSHelper(path []WikiPage, end WikiPage, newPath chan<- []WikiPage, visited *sync.Map, tmpqueue *[][]WikiPage) {
 	defer wg.Done()
-	// time.Sleep(time.Second)
 	if len(path) == 0 {
 		newPath <- nil
 		return
@@ -99,11 +74,9 @@ func BFSHelper(path []WikiPage, end WikiPage, newPath chan<- []WikiPage, visited
 		fmt.Println("error")
 		return
 	}
-	// fmt.Println(1)
 	for _, link := range links {
 		_, ok := visited.Load(link.Title)
 		if !ok {
-			// fmt.Println(link.Title)
 			if link.Title != end.Title {
 				visited.Store(link.Title, true)
 			}

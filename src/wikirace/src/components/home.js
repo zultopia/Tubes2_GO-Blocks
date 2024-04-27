@@ -31,6 +31,7 @@ function Home() {
   const [idsSrc, setIdsSrc] = useState(ids_text); 
   const [isStartAutocompleteOpen, setIsStartAutocompleteOpen] = useState(false);
   const [isEndAutocompleteOpen, setIsEndAutocompleteOpen] = useState(false);
+  const [isMulti, setMulti] = useState(false)
 
   const handleMcQueenClick = () => {
     setBfsSrc((prevSrc) => (prevSrc === bfs_text ? bfs_text2 : bfs_text)); 
@@ -88,9 +89,9 @@ function Home() {
 
   const handleSwitchToggle = (isOn) => {
     if (isOn) {
-      console.log('Algoritma one solution');
+      setMulti(true)
     } else {
-      console.log('Algoritma many solution');
+      setMulti(false)
     }
   };
   
@@ -103,6 +104,7 @@ function Home() {
         const t = targetArticle.replaceAll(" ", "_");
         const fullStartArticleURL = `https://en.wikipedia.org/wiki/${s}`;
         const fullTargetArticleURL = `https://en.wikipedia.org/wiki/${t}`;
+        const Multi = isMulti ? "1" : "2";
 
         // Make API request with full URLs
         const response = await fetch(`/api/${bfsSrc === bfs_text2 ? "BFS" : "IDS"}`, {
@@ -116,6 +118,7 @@ function Home() {
             startURL: fullStartArticleURL,
             targetTitle: t,
             targetURL: fullTargetArticleURL,
+            multi: Multi,
           })
         });
         const data = await response.json();
