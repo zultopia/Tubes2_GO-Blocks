@@ -64,18 +64,23 @@ Setiap link yang didapatkan akan dicek apakah sudah sesuai dengan artikel tujuan
 1. Clone repo
 
 ```
-git clone git@github.com:zultopia/Tubes2_Stima.git
+git clone git@github.com:zultopia/Tubes2_GO-Blocks.git
 ```
 
 2. Compile the program
 
 ```
-cd src
-cd frontend
-cd wikirace
-npm start
+cd src/frontend
+yarn
+yarn build
 ```
 
+3. Run the program
+
+```
+cd ../backend
+go run .
+```
 <!-- LICENSE -->
 ## Licensing
 
