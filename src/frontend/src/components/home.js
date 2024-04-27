@@ -227,7 +227,7 @@ function Home() {
             <div className="result-content"> 
               <h2>Result</h2>
               <p>Jumlah Artikel yang diperiksa: {result.articlesVisited}</p>
-              <p>Jumlah Artikel yang dilalui: {result.paths.length === 0 ? "-" : result.paths[0].length}</p>
+              <p>Jumlah Artikel yang dilalui: {result.paths.length === 0 ? "No Solution" : result.paths[0].length}</p>
               <p>Execution Time: {result.executionTime} ms</p>
               {result.paths.map((path, index) => (
                 <div key={index}>
