@@ -26,7 +26,7 @@ var user_agent = []string{
 	"Mozilla/5.0 (Windows NT 10.0; Windows; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/103.0.5060.114 Safari/537.36",
 	"Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/103.0.5060.53 Safari/537.36"}
 
-func getWikiLinks(page, end WikiPage) ([]WikiPage, error) {
+func getWikiLinks(page WikiPage) ([]WikiPage, error) {
 	visited2 := make(map[string]bool)
 	c := colly.NewCollector(
 		colly.AllowedDomains("en.wikipedia.org"),

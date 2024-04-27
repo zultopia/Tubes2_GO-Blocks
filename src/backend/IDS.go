@@ -42,7 +42,7 @@ func DLSmulti(start, end WikiPage, depth int, cache *sync.Map) ([][]WikiPage, in
 	var links []WikiPage
 	linkstmp, _ := cache.Load(start.Title)
 	if linkstmp == nil {
-		links, _ = getWikiLinks(start, end)
+		links, _ = getWikiLinks(start)
 		cache.Store(start.Title, links)
 	} else {
 		links = linkstmp.([]WikiPage)
@@ -85,7 +85,7 @@ func DLSsingle(start, end WikiPage, depth int, cache *sync.Map) ([][]WikiPage, i
 	var links []WikiPage
 	linkstmp, _ := cache.Load(start.Title)
 	if linkstmp == nil {
-		links, _ = getWikiLinks(start, end)
+		links, _ = getWikiLinks(start)
 		cache.Store(start.Title, links)
 	} else {
 		links = linkstmp.([]WikiPage)

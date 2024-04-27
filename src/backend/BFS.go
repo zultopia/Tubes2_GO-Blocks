@@ -66,7 +66,7 @@ func BFSHelper(path []WikiPage, end WikiPage, newPath chan<- []WikiPage, visited
 		return
 	}
 	lastPage := path[len(path)-1]
-	links, err := getWikiLinks(lastPage, end)
+	links, err := getWikiLinks(lastPage)
 	if err != nil {
 		newPath <- nil
 		fmt.Println("error")
